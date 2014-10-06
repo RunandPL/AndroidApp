@@ -1,0 +1,96 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.mp.runand.app.activities.Login">
+
+    <!--Need to change background text style and button layout-->
+    <TextView
+        android:text="@string/login_header"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:id="@+id/loginHeader"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textColor="#000000"/>
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:hint="@string/loginEmail"
+        android:inputType="textEmailAddress"
+        android:id="@+id/email"
+        android:layout_below="@+id/loginHeader"
+        android:layout_alignParentRight="true"
+        android:textSize="15sp"
+        android:textColor="#000000"/>
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/password"
+        android:hint="@string/login_password"
+        android:layout_below="@+id/email"
+        android:layout_alignLeft="@+id/email"
+        android:textSize="15sp"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:gravity="bottom"
+        android:text="@string/loginTextViewEmail"
+        android:id="@+id/textViewEmail"
+        android:layout_alignTop="@+id/email"
+        android:layout_toLeftOf="@+id/email"
+        android:textSize="15sp"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:gravity="bottom"
+        android:text="@string/textViewPassword"
+        android:id="@+id/textViewPassword"
+        android:layout_alignBottom="@+id/password"
+        android:layout_alignRight="@+id/textViewEmail"
+        android:textSize="15sp"
+        android:textColor="#000000"/>
+
+    <Button
+        android:layout_width="170dp"
+        android:layout_height="40dp"
+        android:text="@string/loginButton"
+        android:id="@+id/login"
+        android:textSize="13sp"
+        android:textColor="#000000"
+        android:layout_below="@+id/password"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="55dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="170dp"
+        android:layout_height="40dp"
+        android:text="@string/loginForgotPassword"
+        android:id="@+id/passwordReset"
+        android:textSize="13sp"
+        android:textColor="#000000"
+        android:layout_below="@+id/login"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/login"
+        android:layout_alignEnd="@+id/login" />
+
+
+</RelativeLayout>
