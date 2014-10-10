@@ -1,6 +1,7 @@
 package com.mp.runand.app.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -23,6 +24,7 @@ public class Login extends Activity {
     @InjectView(R.id.email) EditText editTextEmail;
     @InjectView(R.id.passwordReset) Button buttonPasswordReset;
     @InjectView(R.id.password) EditText editTextPassword;
+    @InjectView(R.id.button) Button newButton;
 
     Matcher emailMatcher;
 
@@ -83,6 +85,16 @@ public class Login extends Activity {
                     Toast.makeText(getApplicationContext(),
                             "Incorrect email", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        newButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double[] table = new double[]{21,45,32,45,67,12};
+                Intent intent = new Intent(getBaseContext(), MapLook.class);
+                intent.putExtra("POSITIONS", table);
+                startActivity(intent);
             }
         });
     }
