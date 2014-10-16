@@ -8,26 +8,24 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Created by Sebastian on 2014-10-13.
+ * SQL queries
  */
 public class DataBaseHelper extends SQLiteOpenHelper {
 
-    private static String DATA_BASE_NAME = "RunAndDataBase";
-    private static int DATA_BASE_VERSION = 1;
+    private Context context;
 
-    //Users table names
-    private static UserTableData userTableData = new UserTableData();
-
-    private static final String CREATE_USERS_TABLE = "CREATE TABLE " + userTableData.TABLE_NAME
-            + "(" + userTableData.USER_NAME + " TEXT PRIMARY KEY," + userTableData.EMAIL_ADDRESS + " TEXT NOT NULL,"
-            + userTableData.SESSION_ID + " INTEGER" + ")";
+    private static final String CREATE_CURRENT_USER_TABLE = "CREATE TABLE " + DatabaseConstants.CURRENT_USER_TABLE_NAME
+            + "(" + DatabaseConstants.CURRENT_USER_NAME + " TEXT PRIMARY KEY," + DatabaseConstants.CURRENT_USER_EMAIL_ADDRESS + " TEXT NOT NULL,"
+            + DatabaseConstants.CURRENT_USER_SESSION_ID + " INTEGER" + ")";
 
     public DataBaseHelper(Context context) {
-        super(context, DATA_BASE_NAME, null, DATA_BASE_VERSION);
+        super(context, DatabaseConstants.DATA_BASE_NAME, null, DatabaseConstants.DATA_BASE_VERSION);
+        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase dataBase) {
-        dataBase.execSQL(CREATE_USERS_TABLE);
+        dataBase.execSQL(CREATE_CURRENT_USER_TABLE);
     }
 
     @Override
@@ -35,58 +33,59 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         //Right now, I think we do not need this so I will not do anything here
     }
 
-    /*
-    Put given user in database
+    /**
+     * Add current user to db
+     * @param uName username
+     * @param uEmail email
+     * @param uSession session id
      */
-    public void addUser(User user){
+    public void addCurrentUser(String uName, String uEmail, int uSession){
         SQLiteDatabase dataBase = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(userTableData.USER_NAME, user.getUserName());
-        contentValues.put(userTableData.EMAIL_ADDRESS, user.getEmailAddress());
-        contentValues.put(userTableData.SESSION_ID, user.getSessionID());
+        contentValues.put(DatabaseConstants.CURRENT_USER_NAME, uName);
+        contentValues.put(DatabaseConstants.CURRENT_USER_EMAIL_ADDRESS, uEmail);
+        contentValues.put(DatabaseConstants.CURRENT_USER_SESSION_ID, uSession);
 
-        dataBase.insert(userTableData.TABLE_NAME, null, contentValues);
+        dataBase.insert(DatabaseConstants.CURRENT_USER_TABLE_NAME, null, contentValues);
         dataBase.close();
     }
-    /*
-    Delete user with given User Name form database
+
+    /**
+     * to logout
      */
-    public void deleteUser(String userName) {
+    public void deleteCurrentUser() {
         SQLiteDatabase dataBase = getWritableDatabase();
-
-        String[] parametersTable = new String[]{userName};
-        String query = userTableData.USER_NAME + " = ?";
-
-        dataBase.delete(userTableData.TABLE_NAME, query, parametersTable);
+        dataBase.execSQL("DROP TABLE IF EXISTS " + DatabaseConstants.CURRENT_USER_TABLE_NAME);
         dataBase.close();
     }
-    /*
-    Get user with given User Name from database
-    @return null if there is no user with given user name
+
+    /**
+     *Get current user from database
+     *@return null if there is no user with given user name
      */
-    public User getUser(String userName) {
+    public CurrentUserDAO getCurrentUser() {
         SQLiteDatabase dataBase = getReadableDatabase();
 
-        String query = "SELECT * FROM " + userTableData.TABLE_NAME + " WHERE " + userTableData.USER_NAME +
-                " = '" + userName + "'";
+        String query = "SELECT * FROM " + DatabaseConstants.CURRENT_USER_TABLE_NAME;
 
         //Getting cursor to database
         Cursor cursor = dataBase.rawQuery(query, null);
 
+        //should not be null at all but leave it for sure
         if(cursor == null) {
             //There is no user with given user name
             return null;
         }
         cursor.moveToFirst();
 
-        User user = new User();
-        user.setEmailAddress(cursor.getString(cursor.getColumnIndex(userTableData.EMAIL_ADDRESS)));
-        user.setUserName(cursor.getString(cursor.getColumnIndex(userTableData.USER_NAME)));
-        user.setSessionID(cursor.getInt(cursor.getColumnIndex(userTableData.SESSION_ID)));
+        CurrentUserDAO cu = new CurrentUserDAO(
+                cursor.getString(cursor.getColumnIndex(DatabaseConstants.CURRENT_USER_NAME)),
+                cursor.getInt(cursor.getColumnIndex(DatabaseConstants.CURRENT_USER_SESSION_ID)),
+                cursor.getString(cursor.getColumnIndex(DatabaseConstants.CURRENT_USER_EMAIL_ADDRESS)),
+                context);
 
         dataBase.close();
-        return user;
+        return cu;
     }
-
 }

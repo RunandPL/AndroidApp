@@ -16,5 +16,6 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_map_look">MapLook</string>
+    <string name="menu_logout">Logout</string>
 
 </resources>

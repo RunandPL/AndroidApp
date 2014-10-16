@@ -1,11 +1,14 @@
 package com.mp.runand.app.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.mp.runand.app.R;
+import com.mp.runand.app.logic.database.CurrentUserDAO;
 
 
 public class MainActivity extends Activity {
@@ -28,8 +31,19 @@ public class MainActivity extends Activity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                CurrentUserDAO.getCurrentUser(this).logOut();
+                Intent i = new Intent(this, Login.class);
+                startActivity(i);
+                finish();
+//            case R.id.help:
+//                showHelp();
+//                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

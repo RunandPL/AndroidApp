@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.mp.runand.app.R;
+import com.mp.runand.app.logic.database.CurrentUserDAO;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,7 +58,6 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
     public static final Pattern VALID_EMAIL_ADDRESS_PATTERN =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-//    Probably can be done easier without globals but will be done after integration with sql
     Person currentPerson;
     String personName;
     String personPhotoUrl;
@@ -119,8 +119,7 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
             case R.id.login:
                 // Classic log in
                 performNormalLogging();
-                Toast.makeText(getApplicationContext(),
-                        "Unsupported yet", Toast.LENGTH_SHORT).show();
+
                 break;
             //to remove after testing
                         case R.id.button:
@@ -134,6 +133,13 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
                         case R.id.button2:
                             signOutFromGplus();
                             updateUI(false);
+                            break;
+                        case R.id.passwordReset:
+                            Toast.makeText(this,
+                                    "Name: " + personName + ", plusProfile: "
+                                            + personGooglePlusProfile + ", email: " + email
+                                            + ", Image: " + personPhotoUrl,
+                                    Toast.LENGTH_LONG).show();
 
             ////////////////////////
         }
@@ -143,14 +149,16 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
     public void onConnected(Bundle bundle) {
         mSignInClicked = false;
         Toast.makeText(this, "User is connected!", Toast.LENGTH_LONG).show();
-
         // Get user's information
-        Toast.makeText(getApplicationContext(),
-                "Logged with G+ \n" + email, Toast.LENGTH_SHORT).show();
-
+        getProfileInformation();
         //Add data to db as logged user probably here
+        if (email != null){
+            //todo pass data to server get token
+            int sessionId = 1;
+            CurrentUserDAO cu = new CurrentUserDAO(personName, sessionId, email, this);
+        }
 
-        // Update the UI after signin
+        // Update the UI after signing wont be used later
         updateUI(true);
     }
 
@@ -180,22 +188,6 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
             }
         }
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int responseCode,
-//                                    Intent intent) {
-//        if (requestCode == RC_SIGN_IN) {
-//            if (responseCode != RESULT_OK) {
-//                mSignInClicked = false;
-//            }
-//
-//            mIntentInProgress = false;
-//
-//            if (!mGoogleApiClient.isConnecting()) {
-//                mGoogleApiClient.connect();
-//            }
-//        }
-//    }
 
     private void performNormalLogging(){
         emailMatcher = VALID_EMAIL_ADDRESS_PATTERN.matcher(editTextEmail.getText().toString());
@@ -262,6 +254,10 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
             mSignInClicked = true;
             resolveSignInError();
         }
+
+        if (!mGoogleApiClient.isConnected()){
+            mGoogleApiClient.connect();
+        }
     }
 
     /**
@@ -280,6 +276,11 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
                 Log.e("LOGIN.JAVA", "Name: " + personName + ", plusProfile: "
                         + personGooglePlusProfile + ", email: " + email
                         + ", Image: " + personPhotoUrl);
+                Toast.makeText(getApplicationContext(),
+                        "Name: " + personName + ", plusProfile: "
+                        + personGooglePlusProfile + ", email: " + email
+                        + ", Image: " + personPhotoUrl,
+                        Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(getApplicationContext(),
                         "Person information is null", Toast.LENGTH_LONG).show();
@@ -315,6 +316,12 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
             mGoogleApiClient.disconnect();
             mGoogleApiClient.connect();
+            currentPerson = null;
+            personName = "";
+            personPhotoUrl = "";
+            personGooglePlusProfile = "";
+            email = "";
+
             updateUI(false);
         }
     }

@@ -11,13 +11,13 @@ import android.view.Window;
 
 import com.mp.runand.app.R;
 import com.mp.runand.app.activities.util.SystemUiHider;
+import com.mp.runand.app.logic.database.CurrentUserDAO;
 
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
+ * during splashScreen check if any user i logged
+ * if logged skip logging in
+ * else log in
  */
 public class SplashScreen extends Activity {
 
@@ -97,11 +97,18 @@ public class SplashScreen extends Activity {
         });
         /**
          * Delay Loging or Main activity and show Splash
+         *
          */
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent i = new Intent(SplashScreen.this, Login.class);
+                Intent i;
+                CurrentUserDAO cu = CurrentUserDAO.getCurrentUser(getApplicationContext());
+                if (cu.getUserName() != "Anonymous") {
+                    i = new Intent(SplashScreen.this, MainActivity.class);
+                } else {
+                    i = new Intent(SplashScreen.this, Login.class);
+                }
                 startActivity(i);
                 finish();
             }
