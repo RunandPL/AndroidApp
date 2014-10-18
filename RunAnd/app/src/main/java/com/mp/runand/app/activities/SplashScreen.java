@@ -39,7 +39,7 @@ public class SplashScreen extends Activity {
     /**
      * The duration of splash screen in millis
      */
-    private static final int DURATION_OF_SPLASH_SCREEN=7000;
+    private static final int DURATION_OF_SPLASH_SCREEN=4000;
     /**
      * The instance of the {@link SystemUiHider} for this activity.
      */
@@ -105,7 +105,7 @@ public class SplashScreen extends Activity {
             @Override
             public void run() {
                 Intent i;
-                DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+                DataBaseHelper db = DataBaseHelper.getInstance(getApplicationContext());
                 CurrentUser cu = db.getCurrentUser();
                 if (cu != null) {
                     i = new Intent(SplashScreen.this, MainActivity.class);

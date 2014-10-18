@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.android.gms.internal.ma;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -89,6 +90,7 @@ public class MapLook extends Activity {
             polylineOptions.color(Color.GREEN);
             polyline = map.addPolyline(polylineOptions);
 
+            //Place markers at begining and end of route
             LatLng latLng = positionList.get(0);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.title("Start");
@@ -98,23 +100,17 @@ public class MapLook extends Activity {
             markerOptions.title("Stop");
             markerOptions.position(latLng);
             stopMarker = map.addMarker(markerOptions);
+
+            //Zoom the camera to the beggining of route
+            latLng = positionList.get(0);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);
+            map.animateCamera(cameraUpdate);
         }
     }
 
     private void prepareMap() {
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-    	/*//Ustawiam ostatnią znaną pozycję na mapie
-    	Location location = locationManager.getLastKnownLocation(LOCATION_PROVIDER);
-    	if(location != null) {
-    		updateMap(location, map);
-    		LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-    		positionList.add(latLng);
-    		//Ruch za markerem
-    		map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
-    		putMarkerOnMap(map, "Ja", latLng);
-    		currentBestLocation = location;
-    	}*/
     }
 
     @Override

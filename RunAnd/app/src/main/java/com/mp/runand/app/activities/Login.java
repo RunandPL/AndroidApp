@@ -177,7 +177,7 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
     }
 
     /**
-     * Method to resolve any signing in errors
+     * Method to resolve any signin errors
      * */
     private void resolveSignInError() {
         if (mConnectionResult.hasResolution()) {
@@ -202,7 +202,7 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
         if (currentUser.getEmailAddress() != null){
             //todo pass data to server get token
             String token ="";
-            DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+            DataBaseHelper db = DataBaseHelper.getInstance(getBaseContext());
             db.addCurrentUser(currentUser.getUserName(), currentUser.getEmailAddress(), token);
             Intent i = new Intent(this, MainActivity.class);
             startActivity(i);

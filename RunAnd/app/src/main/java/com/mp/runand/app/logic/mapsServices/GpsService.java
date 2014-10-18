@@ -9,6 +9,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.mp.runand.app.logic.database.DataBaseHelper;
 
 import android.app.Service;
 import android.content.Context;
@@ -53,9 +54,6 @@ public class GpsService extends Service {
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
         positionList = new ArrayList<LatLng>();
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        Location location = locationManager.getLastKnownLocation(LOCATION_PROVIDER);
-        if(location != null)
-            currentBestLocation = location;
         locationListener = new LocationListener() {
 
             @Override
@@ -111,11 +109,8 @@ public class GpsService extends Service {
         for(int i = 0; i < positionList.size(); i++) {
             positionsTable[2 * i] = positionList.get(i).latitude;
             positionsTable[2 * i + 1] = positionList.get(i).longitude;
-
         }
-        //return positionsTable;
-        double[] tmp = new double[]{12,45,56,21,34,56,12,78,90,78};
-        return tmp;
+        return positionsTable;
     }
 
 
