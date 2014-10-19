@@ -5,10 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.mp.runand.app.R;
-import com.mp.runand.app.logic.database.CurrentUserDAO;
+import com.mp.runand.app.logic.CurrentUser;
+import com.mp.runand.app.logic.database.DataBaseHelper;
 
 
 public class MainActivity extends Activity {
@@ -34,7 +34,9 @@ public class MainActivity extends Activity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menu_logout:
-                CurrentUserDAO.getCurrentUser(this).logOut();
+                DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+                db.deleteCurrentUser();
+                //todo remove currentuser from properties if it will be added
                 Intent i = new Intent(this, Login.class);
                 startActivity(i);
                 finish();

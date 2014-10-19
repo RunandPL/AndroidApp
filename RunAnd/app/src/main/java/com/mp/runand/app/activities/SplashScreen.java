@@ -2,6 +2,7 @@ package com.mp.runand.app.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,7 +12,8 @@ import android.view.Window;
 
 import com.mp.runand.app.R;
 import com.mp.runand.app.activities.util.SystemUiHider;
-import com.mp.runand.app.logic.database.CurrentUserDAO;
+import com.mp.runand.app.logic.CurrentUser;
+import com.mp.runand.app.logic.database.DataBaseHelper;
 
 
 /**
@@ -103,8 +105,9 @@ public class SplashScreen extends Activity {
             @Override
             public void run() {
                 Intent i;
-                CurrentUserDAO cu = CurrentUserDAO.getCurrentUser(getApplicationContext());
-                if (cu.getUserName() != "Anonymous") {
+                DataBaseHelper db = new DataBaseHelper(getApplicationContext());
+                CurrentUser cu = db.getCurrentUser();
+                if (cu != null) {
                     i = new Intent(SplashScreen.this, MainActivity.class);
                 } else {
                     i = new Intent(SplashScreen.this, Login.class);
