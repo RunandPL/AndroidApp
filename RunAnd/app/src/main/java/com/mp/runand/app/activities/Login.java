@@ -82,6 +82,13 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
     }
 
     @Override
+    public void onBackPressed(){
+        //do nothing in this activity
+        //otherwise it will close app
+        //don't add in another activities
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
