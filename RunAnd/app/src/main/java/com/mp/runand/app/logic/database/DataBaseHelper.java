@@ -5,12 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mp.runand.app.logic.CurrentUser;
+import com.mp.runand.app.logic.entities.CurrentUser;
+import com.mp.runand.app.logic.entities.Track;
+import com.mp.runand.app.logic.entities.Training;
 
 /**
  * Created by Sebastian on 2014-10-13.
@@ -32,20 +33,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     private static final String CREATE_TRACKS_TABLE = "CREATE TABLE " + DatabaseConstants.TRACK_TABLE_NAME
             + "(" + DatabaseConstants.ID + " INTEGER PRIMARY KEY," + DatabaseConstants.TRACK_LAST_UPDATE + " DATE NOT NULL,"
             + DatabaseConstants.TRACK_ROUTE + " LONGTEXT NOT NULL," + DatabaseConstants.TRACK_LENGTH + " UNSIGNED DOUBLE NOT NULL," +
-            DatabaseConstants.TRACK_BEST_TIME + " UNSIGNED LONG NOT NULL," + DatabaseConstants.TRACK_USER_ID + " UNSIGNED LONG NOT NULL,"
-            + DatabaseConstants.TRACK_LOCATION + " CHAR(14) NOT NULL" + ")";
+            DatabaseConstants.TRACK_BEST_TIME + " UNSIGNED LONG NOT NULL," + DatabaseConstants.TRACK_USER_ID + " LONG NOT NULL,"
+            + DatabaseConstants.TRACK_AREA + " CHAR(14) NOT NULL" + ")";
 
     //Create table(id integer not null AUTO_INCREMENT, userName Text not null, trackid integer not null)
 
-    private static final String CREATE_USER_TRACK_TABLE = "CREATE TABLE " + DatabaseConstants.USER_TRACK_NAME
-            + "(" + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.USER_TRACK_USER_NAME + " TEXT NOT NULL, "
-            + DatabaseConstants.USER_TRACK_TRACK_ID + " INTEGER NOT NULL)";
+    private static final String CREATE_USER_TRAINING_TABLE = "CREATE TABLE " + DatabaseConstants.USER_TRAINING_TABLE_NAME
+            + "(" + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.USER_TRAINING_TABLE_USER_EMAIL + " TEXT NOT NULL, "
+            + DatabaseConstants.USER_TRAINING_TABLE_TRAINING_ID + " INTEGER NOT NULL)";
+
+    private static final String CREATE_TRAINING_TABLE = "CREATE TABLE " + DatabaseConstants.TRAIN_TABLE_NAME
+            + "(" + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.TRAIN_TABLE_USER_EMAIL + " TEXT NOT NULL, "
+            + DatabaseConstants.TRAIN_TABLE_LENGTH_TIME + " INTEGER NOT NULL, " + DatabaseConstants.TRAIN_TABLE_TRACK_ID + " INTEGER NOT NULL, "
+            + DatabaseConstants.TRAIN_TABLE_BURNED_CALORIES + " INTEGER NOT NULL, " + DatabaseConstants.TRAIN_TABLE_SPEED_RATE + " FLOAT NOT NULL,"
+            + DatabaseConstants.TRAIN_TABLE_DATE + " DATE NOT NULL)";
 
     public static DataBaseHelper getInstance(Context context) {
         if (instance == null) {
             //Kasowanie bazy
             //context.deleteDatabase(DATA_BASE_NAME);
-            //Toast.makeText(context, "Utworzenie Instance", Toast.LENGTH_SHORT).show();
             instance = new DataBaseHelper(context);
         }
         return instance;
@@ -60,7 +66,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase dataBase) {
         dataBase.execSQL(CREATE_CURRENT_USER_TABLE);
         dataBase.execSQL(CREATE_TRACKS_TABLE);
-        dataBase.execSQL(CREATE_USER_TRACK_TABLE);
+        dataBase.execSQL(CREATE_USER_TRAINING_TABLE);
+        dataBase.execSQL(CREATE_TRAINING_TABLE);
     }
 
     @Override
@@ -112,20 +119,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         dataBase.close();
     }
 
-    /**
-     * to logout
-    public void addUser(User user) {
-        SQLiteDatabase dataBase = getWritableDatabase();
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(DatabaseConstants.USER_NAME, user.getUserName());
-        contentValues.put(DatabaseConstants.USER_EMAIL_ADDRESS, user.getEmailAddress());
-        contentValues.put(DatabaseConstants.USER_SESSION_ID, user.getSessionID());
-
-        dataBase.insert(DatabaseConstants.USER_TABLE_NAME, null, contentValues);
-        dataBase.close();
-    }
-
     /*
     Delete user with given User Name form database
      */
@@ -133,17 +126,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase dataBase = getWritableDatabase();
         dataBase.execSQL("DROP TABLE IF EXISTS " + DatabaseConstants.CURRENT_USER_TABLE_NAME);
         dataBase.execSQL(CREATE_CURRENT_USER_TABLE);
-        dataBase.close();
-    }
-
-    /**
-     *Get current user from database
-     *@return null if there is no user with given user name
-
-        String[] parametersTable = new String[]{userName};
-        String query = DatabaseConstants.USER_NAME + " = ?";
-
-        dataBase.delete(DatabaseConstants.USER_TABLE_NAME, query, parametersTable);
         dataBase.close();
     }
 
@@ -183,40 +165,24 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      * Save given track to database
      *
      * @param track
+     * @return id of new track record
      */
-    public void addTrack(Track track, String userName) {
+    public int addTrack(Track track) {
         SQLiteDatabase database = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseConstants.TRACK_BEST_TIME, track.getBestTime());
         contentValues.put(DatabaseConstants.TRACK_LAST_UPDATE, track.getLastUpdate().toString());
         contentValues.put(DatabaseConstants.TRACK_LENGTH, track.getLength());
-        contentValues.put(DatabaseConstants.TRACK_LOCATION,
-                DatabaseUtils.trackToString(track.getLocation()));
+        contentValues.put(DatabaseConstants.TRACK_AREA,
+                DatabaseUtils.areaToString(track.getArea()));
         contentValues.put(DatabaseConstants.TRACK_ROUTE,
-                DatabaseUtils.trackToString(track.getRoute()));
-        contentValues.put(DatabaseConstants.TRACK_USER_ID, track.getUserID());
+                DatabaseUtils.routeToString(track.getRoute()));
+        contentValues.put(DatabaseConstants.TRACK_USER_ID, 0);
 
-        database.insert(DatabaseConstants.TRACK_TABLE_NAME, null, contentValues);
+        int trackID = (int) database.insert(DatabaseConstants.TRACK_TABLE_NAME, null, contentValues);
         database.close();
-        //I do not know if this can be done better
-        int trackID = getLatestTrackID();
-        addUserTrackNewEntry(trackID, userName);
-    }
-
-    private int getLatestTrackID() {
-        SQLiteDatabase database = getReadableDatabase();
-        String query = "SELECT * FROM " + DatabaseConstants.TRACK_TABLE_NAME + " WHERE " + DatabaseConstants.ID
-                + " = (SELECT MAX(" + DatabaseConstants.ID + ") FROM " + DatabaseConstants.TRACK_TABLE_NAME +")";
-
-        Cursor cursor = database.rawQuery(query, null);
-
-        if(cursor.getCount() == 0)
-            return -1;
-        cursor.moveToFirst();
-        int result = cursor.getInt(cursor.getColumnIndex(DatabaseConstants.ID));
-        database.close();
-        return result;
+        return trackID;
     }
 
     /**
@@ -260,9 +226,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     /**
      * Getting every track which belong to User with given userName
      *
-     * @param userName for the user to be loaded from database
-     * @return List of user tracks
-     */
+     *  for the user to be loaded from database
+     *  List of user tracks
+
     public List<Track> getTracksByUser(String userName) {
         //Select * from tracks tr, usertrack ut where ut.userName = userName and ut.trackid = tr.id;
         ArrayList<Track> result = new ArrayList<Track>();
@@ -280,19 +246,59 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }
 
         return result;
+    } */
+    public void addTraining(Training training) {
+        //Writing track to database
+        int trackID = addTrack(training.getTrack());
+        SQLiteDatabase database = getWritableDatabase();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_BURNED_CALORIES, training.getBurnedCalories());
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_LENGTH_TIME, training.getLengthTime());
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_SPEED_RATE, training.getSpeedRate());
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_USER_EMAIL, training.getUserEmail());
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_TRACK_ID, trackID);
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_DATE, training.getDate().toString());
+
+        database.insert(DatabaseConstants.TRAIN_TABLE_NAME, null, contentValues);
+        database.close();
+    }
+
+    public List<Training> getUserTrainings(String emailAddress) {
+        String query = "select * from " + DatabaseConstants.TRAIN_TABLE_NAME + " where " + DatabaseConstants.TRAIN_TABLE_USER_EMAIL
+                + " = '" + emailAddress + "'";
+        SQLiteDatabase database = getReadableDatabase();
+        List<Training> trainings = new ArrayList<Training>();
+
+        Cursor cursor = database.rawQuery(query, null);
+        if(cursor.moveToFirst()) {
+            do {
+                Training training = new Training(cursor.getInt(cursor.getColumnIndex(DatabaseConstants.ID)),
+                        cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_USER_EMAIL)),
+                        cursor.getInt(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_LENGTH_TIME)),
+                        cursor.getInt(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_BURNED_CALORIES)),
+                        cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_SPEED_RATE)),
+                        cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_DATE)));
+                //Getting track from database
+                training.setTrack(getTrack(cursor.getLong(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_TRACK_ID))));
+                trainings.add(training);
+            } while(cursor.moveToNext());
+        }
+        database.close();
+        return trainings;
     }
 
     /**
-     * @param trackID  Track Id
-     * @param userName UserName
+     * @param trainingID  Training ID
+     * @param userEmail UserEmail
      */
-    private void addUserTrackNewEntry(long trackID, String userName) {
+    private void addUserTrainingNewEntry(long trainingID, String userEmail) {
         SQLiteDatabase database = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DatabaseConstants.USER_TRACK_USER_NAME, userName);
-        contentValues.put(DatabaseConstants.USER_TRACK_TRACK_ID, trackID);
+        contentValues.put(DatabaseConstants.USER_TRAINING_TABLE_USER_EMAIL, userEmail);
+        contentValues.put(DatabaseConstants.USER_TRAINING_TABLE_TRAINING_ID, trainingID);
 
-        database.insert(DatabaseConstants.USER_TRACK_NAME, null, contentValues);
+        database.insert(DatabaseConstants.USER_TRAINING_TABLE_NAME, null, contentValues);
         database.close();
     }
 
@@ -307,11 +313,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         track.setBestTime(cursor.getLong(cursor.getColumnIndex(DatabaseConstants.TRACK_BEST_TIME)));
         track.setLastUpdate(cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_LAST_UPDATE)));
         track.setLength(cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.TRACK_LENGTH)));
-        String location = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_LOCATION));
-        track.setLocation(DatabaseUtils.stringToTrack(location));
+        String area = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_AREA));
+        track.setLocation(DatabaseUtils.stringToArea(area));
         String route = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_ROUTE));
-        track.setRoute(DatabaseUtils.stringToTrack(route));
-        track.setUserID(cursor.getLong(cursor.getColumnIndex(DatabaseConstants.TRACK_USER_ID)));
+        track.setRoute(DatabaseUtils.stringToRoute(route));
 
         return track;
     }

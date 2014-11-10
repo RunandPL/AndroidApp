@@ -23,5 +23,6 @@
     <string name="stopTraining">Zakończ Trening</string>
     <string name="showTrainingHistory">Historia Treningów</string>
     <string name="training">Trening</string>
+    <string name="title_activity_training_detail">TrainingDetailActivity</string>
 
 </resources>

@@ -2,25 +2,19 @@ package com.mp.runand.app.logic.mapsServices;
 
 
 import java.util.ArrayList;
-import java.util.List;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.mp.runand.app.logic.database.DataBaseHelper;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.widget.Toast;
+
+import com.mp.runand.app.logic.training.MessagesReader;
+
 /**
  * Created by Sebastian on 2014-10-09.
  */
@@ -28,13 +22,18 @@ public class GpsService extends Service {
     public static final String ACTION = "GPS_ACTION";
     private final String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
     private static final int TWO_MINUTES = 1000 * 60 * 2;
-    private static final int SUFFICIENT_ACCURACY = 10;
-    private Marker marker = null;
-    private List<LatLng> positionList;
+    private static final int SUFFICIENT_ACCURACY = 100;
+    private ArrayList<Location> locations = new ArrayList<Location>();;
     private LocationManager locationManager = null;
     private boolean startTracking = false;
     private Location currentBestLocation = null;
     private LocationListener locationListener = null;
+    private float length = 0;
+    private int burnedCalories = 0;
+    private long startTime = 0;
+    private long stopTime = 0;
+    private Location lastLocation = null;
+    private MessagesReader messagesReader;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -44,15 +43,18 @@ public class GpsService extends Service {
     @Override
     public void onDestroy() {
         //Send tracked positions back to main activity
-        sendTrackPositions();
+        stopTime = System.currentTimeMillis();
+        sendTrainingData();
         Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
         locationManager.removeUpdates(locationListener);
+        messagesReader.terminate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
-        positionList = new ArrayList<LatLng>();
+        messagesReader = new MessagesReader(getBaseContext());
+        new Thread(messagesReader).start();
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
 
@@ -77,8 +79,10 @@ public class GpsService extends Service {
             @Override
             public void onLocationChanged(Location location) {
                 if(location.getAccuracy() < SUFFICIENT_ACCURACY) {
-                    if(!startTracking)
+                    if(!startTracking) {
                         sendData("Rozpoczęcie Namierzania");
+                        startTime = System.currentTimeMillis();
+                    }
                     startTracking = true;
                 }
                 if(startTracking) {
@@ -87,7 +91,7 @@ public class GpsService extends Service {
             }
         };
         locationManager.requestLocationUpdates(LOCATION_PROVIDER, 0, 0, locationListener);
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void sendData(String data) {
@@ -97,27 +101,28 @@ public class GpsService extends Service {
         sendBroadcast(intent);
     }
 
-    private void sendTrackPositions() {
+    private void sendTrainingData() {
+        //Countin training time
+        long timeDiffrence = stopTime - startTime;
         Intent intent = new Intent();
         intent.setAction(ACTION);
-        intent.putExtra("POSITIONS", getPositionsAsDouble());
+        intent.putParcelableArrayListExtra("POSITIONS", locations);
+        intent.putExtra("TRAINING_TIME", timeDiffrence);
+        intent.putExtra("LENGTH", length);
+        intent.putExtra("BURNED_CALORIES", burnedCalories);
         sendBroadcast(intent);
-    }
-
-    private double[] getPositionsAsDouble() {
-        double[] positionsTable = new double[positionList.size() * 2];
-        for(int i = 0; i < positionList.size(); i++) {
-            positionsTable[2 * i] = positionList.get(i).latitude;
-            positionsTable[2 * i + 1] = positionList.get(i).longitude;
-        }
-        return positionsTable;
     }
 
 
     private void updatePositionsList(Location location) {
         if(isBetterLocation(location)) {
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            positionList.add(latLng);
+            locations.add(location);
+            if(lastLocation == null)
+                lastLocation = location;
+            else {
+                length += lastLocation.distanceTo(location);
+                lastLocation = location;
+            }
         }
     }
 
@@ -147,5 +152,4 @@ public class GpsService extends Service {
             return true;
         return false;
     }
-
 }

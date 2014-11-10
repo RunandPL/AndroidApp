@@ -22,7 +22,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.mp.runand.app.R;
-import com.mp.runand.app.logic.CurrentUser;
+import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 
 import java.util.regex.Matcher;

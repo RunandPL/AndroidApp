@@ -36,7 +36,7 @@
         <activity
             android:name=".activities.Login"
             android:label="@string/title_activity_login"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".activities.MainActivity"
@@ -51,10 +51,12 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyB31l0QBu-wZLPkMFf-wIe34lizRygc5LM" />
 
-        <service android:name=".logic.mapsServices.GpsService" />
+        <service
+            android:name=".logic.mapsServices.GpsService"
+            android:process=":remote" />
 
         <activity
-            android:name=".activities.listTracks"
+            android:name=".activities.TrainingList"
             android:label="@string/title_activity_list_tracks" >
         </activity>
         <activity

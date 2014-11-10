@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,13 +13,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.mp.runand.app.R;
-import com.mp.runand.app.logic.CurrentUser;
+import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
-import com.mp.runand.app.logic.database.Track;
+import com.mp.runand.app.logic.entities.Track;
+import com.mp.runand.app.logic.entities.Training;
 import com.mp.runand.app.logic.mapsServices.GpsService;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -35,7 +39,10 @@ public class TrainingActivity extends Activity {
 
     private MyReciver myReciver;
 
-    private double[] trackedPositionsAsDouble = null;
+    private ArrayList<Location> locations = null;
+    private float trackLength;
+    private long trainingTime;
+    private int burnedCalories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,30 +54,26 @@ public class TrainingActivity extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!serviceStarted) {
                     startService(new Intent(getBaseContext(), GpsService.class));
                     serviceStarted = true;
                     endOfTraining = false;
                     positionsOK  = false;
-                }
             }
         });
 
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(serviceStarted) {
                     stopService(new Intent(getBaseContext(), GpsService.class));
                     serviceStarted = false;
                     endOfTraining = true;
-                }
             }
         });
 
         historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getBaseContext(), listTracks.class);
+                Intent intent = new Intent(getBaseContext(), TrainingList.class);
                 startActivity(intent);
             }
         });
@@ -80,10 +83,14 @@ public class TrainingActivity extends Activity {
         if(positionsOK) {
             DataBaseHelper dataBaseHelper = DataBaseHelper.getInstance(getBaseContext());
             CurrentUser currentUser = dataBaseHelper.getCurrentUser();
-            double[] location = new double[]{12.0, 45.0};
-            Track track = new Track(new Date(System.currentTimeMillis()), trackedPositionsAsDouble, 12.0, 1, 1, location);
-            dataBaseHelper.addTrack(track, currentUser.getUserName());
-            Toast.makeText(getBaseContext(), "Zapisano Trasę", Toast.LENGTH_SHORT).show();
+            Location area = new Location("none");
+            area.setLatitude(12.0);
+            area.setLongitude(45.0);
+            Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
+            Training newTraining = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
+            //dataBaseHelper.addTrack(track, currentUser.getUserName());
+            dataBaseHelper.addTraining(newTraining);
+            Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -136,9 +143,12 @@ public class TrainingActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getTrackedPositions(Intent intent) {
-        trackedPositionsAsDouble = intent.getDoubleArrayExtra("POSITIONS");
-        if(trackedPositionsAsDouble != null && trackedPositionsAsDouble.length > 0) {
+    private void getTrainingData(Intent intent) {
+        locations  = intent.getParcelableArrayListExtra("POSITIONS");
+        burnedCalories = intent.getIntExtra("BURNED_CALORIES", 0);
+        trackLength = intent.getFloatExtra("LENGTH", 0);
+        trainingTime = intent.getLongExtra("TRAINING_TIME", 0);
+        if(locations != null && locations.size() > 0) {
             positionsOK = true;
             saveTrainingToDatabase();
         }
@@ -154,7 +164,7 @@ public class TrainingActivity extends Activity {
                 Toast.makeText(TrainingActivity.this, data, Toast.LENGTH_SHORT).show();
                 return;
             }
-            getTrackedPositions(intent);
+            getTrainingData(intent);
         }
     }
 }

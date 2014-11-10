@@ -32,7 +32,7 @@ import com.mp.runand.app.R;
 public class MapLook extends Activity {
 
     private GoogleMap map = null;
-    private List<LatLng> positionList = null;
+    private LatLng[] positions = null;
     private Polyline polyline = null;
     private Marker startMarker = null;
     private Marker stopMarker = null;
@@ -43,7 +43,8 @@ public class MapLook extends Activity {
         setContentView(R.layout.activity_map_look);
         prepareMap();
         Intent intent = getIntent();
-        readPositions(intent.getDoubleArrayExtra("POSITIONS"));
+        ArrayList<Location> positionList = intent.getParcelableArrayListExtra("POSITIONS");
+        positions = getAsLatLngTable(positionList);
         putTrackOnMap();
     }
 
@@ -66,44 +67,26 @@ public class MapLook extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void readPositions(double[] positionsAsDouble) {
-        positionList = new ArrayList<LatLng>();
-        if(positionsAsDouble == null || positionsAsDouble.length == 0) {
-            Toast.makeText(this, "Pozycje są puste", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        int length = positionsAsDouble.length;
-        for(int i = 0; i < (length - 1); i+=2) {
-            double lat = positionsAsDouble[i];
-            double ltg = positionsAsDouble[i + 1];
-            LatLng latLng = new LatLng(lat, ltg);
-            positionList.add(latLng);
-
-        }
-
-    }
-
     private void putTrackOnMap() {
-        if(map != null && !positionList.isEmpty()) {
+        if(map != null && !(positions.length == 0)) {
             PolylineOptions polylineOptions = new PolylineOptions();
-            polylineOptions.add(positionList.toArray(new LatLng[positionList.size()]));
+            polylineOptions.add(positions);
             polylineOptions.color(Color.GREEN);
             polyline = map.addPolyline(polylineOptions);
 
             //Place markers at begining and end of route
-            LatLng latLng = positionList.get(0);
+            LatLng start = new LatLng(positions[0].latitude, positions[0].longitude);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.title("Start");
-            markerOptions.position(latLng);
+            markerOptions.position(start);
             startMarker = map.addMarker(markerOptions);
-            latLng = positionList.get(positionList.size() - 1);
+            LatLng stop = new LatLng(positions[positions.length - 1].latitude, positions[positions.length - 1].longitude);
             markerOptions.title("Stop");
-            markerOptions.position(latLng);
+            markerOptions.position(stop);
             stopMarker = map.addMarker(markerOptions);
 
             //Zoom the camera to the beggining of route
-            latLng = positionList.get(0);
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15.0f);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(start, 15.0f);
             map.animateCamera(cameraUpdate);
         }
     }
@@ -128,12 +111,12 @@ public class MapLook extends Activity {
 
     private void putTrackIntoBundle(Bundle bundle) {
         //Zapisanie znanych pozycji do Bundle
-        if(!positionList.isEmpty()) {
-            double[] positionsAsDouble = new double[positionList.size() * 2];
+        if(!(positions.length == 0)) {
+            double[] positionsAsDouble = new double[positions.length * 2];
             int position = 0;
-            for(int i = 0; i < positionList.size(); i++) {
-                positionsAsDouble[position] = positionList.get(i).latitude;
-                positionsAsDouble[position + 1] = positionList.get(i).longitude;
+            for(int i = 0; i < positions.length; i++) {
+                positionsAsDouble[position] = positions[i].latitude;
+                positionsAsDouble[position + 1] = positions[i].longitude;
                 position += 2;
             }
             bundle.putDoubleArray("Position List", positionsAsDouble);
@@ -166,20 +149,22 @@ public class MapLook extends Activity {
 
         //Na wypadek gdyby nie było żadnej zapisanej trasy
         if(positionsAsDobule != null) {
+            int position = 0;
             for(int i = 0; i < positionsAsDobule.length; i += 2) {
                 LatLng latLng = new LatLng(positionsAsDobule[i], positionsAsDobule[i+1]);
-                positionList.add(latLng);
+                positions[position++] = latLng;
             }
         }
         putTrackOnMap();
-	    	/*//Wczytanie markera
-	    	double[] markerPositionAsDobule = bundle.getDoubleArray("Marker");
+    }
 
-	    	//Na wypadek gdyby nie było zapisanego markera
-	    	if(markerPositionAsDobule != null) {
-	    		LatLng markerPosition = new LatLng(markerPositionAsDobule[0], markerPositionAsDobule[1]);
-	    		putMarkerOnMap(map, "Tytuł", markerPosition);
-	    	}*/
+    private LatLng[] getAsLatLngTable(ArrayList<Location> locations) {
+        LatLng[] result = new LatLng[locations.size()];
+        for(int i = 0; i < locations.size(); i++) {
+            LatLng latLng = new LatLng(locations.get(i).getLatitude(), locations.get(i).getLongitude());
+            result[i] = latLng;
+        }
+        return result;
     }
 }
 
