@@ -141,11 +141,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         //Getting cursor to database
         Cursor cursor = dataBase.rawQuery(query, null);
 
-//        //should not be 0 at all but leave it for sure
-//        if(cursor.getCount() == 0) {
-//            //There is no user with given user name
-//            return null;
-//        }
         cursor.moveToFirst();
         CurrentUser cu = null;
         try {

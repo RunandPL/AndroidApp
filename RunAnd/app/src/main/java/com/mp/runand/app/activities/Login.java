@@ -24,6 +24,8 @@ import com.google.android.gms.plus.model.people.Person;
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.network.JSONRequestBuilder;
+import com.mp.runand.app.logic.network.LoggingManager;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,12 +34,21 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class Login extends Activity implements View.OnClickListener, ConnectionCallbacks, OnConnectionFailedListener {
+public class Login extends Activity
+        implements View.OnClickListener, ConnectionCallbacks, OnConnectionFailedListener {
 
-    @InjectView(R.id.login) Button buttonLogin;
-    @InjectView(R.id.email) EditText editTextEmail;
-    @InjectView(R.id.password) EditText editTextPassword;
-    @InjectView(R.id.btn_sign_in) SignInButton googleButton;
+    @InjectView(R.id.login)
+    Button buttonLogin;
+    @InjectView(R.id.email)
+    EditText editTextEmail;
+    @InjectView(R.id.password)
+    EditText editTextPassword;
+    @InjectView(R.id.btn_sign_in)
+    SignInButton googleButton;
+    @InjectView(R.id.skipLogin)
+    Button skipLogin;
+    @InjectView(R.id.register)
+    Button register;
 
     //needed for g+ api
     private GoogleApiClient mGoogleApiClient;
@@ -79,10 +90,12 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
         //setting button on click listeners
         buttonLogin.setOnClickListener(this);
         googleButton.setOnClickListener(this);
+        skipLogin.setOnClickListener(this);
+        register.setOnClickListener(this);
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         //do nothing in this activity
         //otherwise it will close app
         //don't add in another activities
@@ -107,14 +120,30 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
         switch (view.getId()) {
             case R.id.btn_sign_in:
                 // Sign in button clicked
-                mSignInClicked=true;
+                mSignInClicked = true;
                 resolveSignInError();
                 break;
             case R.id.login:
                 // Classic log in
                 performNormalLogging();
                 break;
+            case R.id.skipLogin:
+                skipLogin();
+                break;
+            case R.id.register:
+                openRegisterActivity();
+                break;
         }
+    }
+
+    public void skipLogin(){
+        //log in as anonymous user
+        DataBaseHelper db = DataBaseHelper.getInstance(this);
+        db.addCurrentUser(new CurrentUser());
+        //change activity
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        finish();
     }
 
     @Override
@@ -160,32 +189,32 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
         }
     }
 
-    private void performNormalLogging(){
+    private void performNormalLogging() {
         emailMatcher = VALID_EMAIL_ADDRESS_PATTERN.matcher(editTextEmail.getText().toString());
         String emailTxt = editTextEmail.getText().toString();
         boolean emailIsValid = emailMatcher.find();
         String passwordTxt = editTextPassword.getText().toString();
 
-        if (emailIsValid && !passwordTxt.equals("")){
-            //todo networkCheck(view);
+        if (emailIsValid && !passwordTxt.equals("")) {
+            signInWithEmail(emailTxt, passwordTxt);
         } else if (emailTxt.equals("") && passwordTxt.equals("")) {
             Toast.makeText(getApplicationContext(),
-                    "Email and Password fields are required", Toast.LENGTH_SHORT).show();
-        } else if (emailTxt.equals("")){
+                    getText(R.string.email_and_password_are_required), Toast.LENGTH_SHORT).show();
+        } else if (emailTxt.equals("")) {
             Toast.makeText(getApplicationContext(),
-                    "Email field is required", Toast.LENGTH_SHORT).show();
-        } else if (passwordTxt.equals("")){
+                    getText(R.string.email_is_required), Toast.LENGTH_SHORT).show();
+        } else if (passwordTxt.equals("")) {
             Toast.makeText(getApplicationContext(),
-                    "Password field is required", Toast.LENGTH_SHORT).show();
-        } else if (!emailIsValid){
+                    getText(R.string.password_is_required), Toast.LENGTH_SHORT).show();
+        } else if (!emailIsValid) {
             Toast.makeText(getApplicationContext(),
-                    "Incorrect email", Toast.LENGTH_SHORT).show();
+                    getText(R.string.email_is_not_valid), Toast.LENGTH_SHORT).show();
         }
     }
 
     /**
      * Method to resolve any signin errors
-     * */
+     */
     private void resolveSignInError() {
         if (mConnectionResult.hasResolution()) {
             try {
@@ -199,22 +228,27 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
     }
 
     /**
-     * Sign-in into google
-     * */
+     * Sign-in to our system with google plus data
+     */
     private void signInWithGplus() {
         // Get user's information
         currentUser = getProfileInformation();
         revokeGplusAccess();
-        //Add data to db as logged user probably here
-        if (currentUser.getEmailAddress() != null){
-            //todo pass data to server get token
-            String token ="";
-            DataBaseHelper db = DataBaseHelper.getInstance(getBaseContext());
-            db.addCurrentUser(currentUser.getUserName(), currentUser.getEmailAddress(), token);
-            Intent i = new Intent(this, MainActivity.class);
-            startActivity(i);
-            finish();
+        //Add data to db as logged user probably here1
+        if (currentUser != null && currentUser.getEmailAddress() != null) {
+            new LoggingManager(this,true).execute(
+                    JSONRequestBuilder.buildGPlusLogInRequestAsJson(
+                            currentUser.getUserName(),
+                            currentUser.getEmailAddress()));
         }
+    }
+
+    private void signInWithEmail(String email, String password){
+        new LoggingManager(this,true).execute(
+                JSONRequestBuilder.buildLogInRequestAsJson(
+                        email,
+                        password,
+                        email.split("@")[0]));
     }
 
     /**
@@ -225,13 +259,14 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
             if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
                 Person currentPerson = Plus.PeopleApi
                         .getCurrentPerson(mGoogleApiClient);
+                String login = (Plus.AccountApi.getAccountName(mGoogleApiClient).split("@"))[0];
                 return new CurrentUser(
                         currentPerson.getDisplayName(),
                         null,
-                        Plus.AccountApi.getAccountName(mGoogleApiClient));
+                        login);
             } else {
                 Toast.makeText(getApplicationContext(),
-                        "Person information is null", Toast.LENGTH_LONG).show();
+                        getText(R.string.can_not_get_G_data), Toast.LENGTH_LONG).show();
                 return null;
             }
         } catch (Exception e) {
@@ -242,7 +277,8 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
 
     /**
      * Revoking access from google
-     * */
+     * full logout
+     */
     private void revokeGplusAccess() {
         if (mGoogleApiClient.isConnected()) {
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
@@ -255,5 +291,13 @@ public class Login extends Activity implements View.OnClickListener, ConnectionC
                         }
                     });
         }
+    }
+
+    /**
+     * change activity to register
+     */
+    private void openRegisterActivity(){
+        Intent i = new Intent(this, Register.class);
+        this.startActivity(i);
     }
 }

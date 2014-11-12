@@ -106,7 +106,7 @@ public class SplashScreen extends Activity {
                 Intent i;
                 DataBaseHelper db = DataBaseHelper.getInstance(getApplicationContext());
                 CurrentUser cu = db.getCurrentUser();
-                if (cu != null) {
+                if (cu!=null && !cu.getUserName().equals("")) {
                     i = new Intent(SplashScreen.this, MainActivity.class);
                 } else {
                     i = new Intent(SplashScreen.this, Login.class);

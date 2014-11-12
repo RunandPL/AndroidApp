@@ -21,6 +21,12 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyB31l0QBu-wZLPkMFf-wIe34lizRygc5LM" />
+
+        <service android:name=".logic.mapsServices.GpsService"
+            android:process=":remote" />
 
         <activity
             android:name=".activities.SplashScreen"
@@ -40,28 +46,32 @@
         </activity>
         <activity
             android:name=".activities.MainActivity"
-            android:label="@string/title_activity_main" >
+            android:label="@string/title_activity_main"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".activities.MapLook"
-            android:label="@string/title_activity_map_look" >
+            android:label="@string/title_activity_map_look"
+            android:screenOrientation="portrait" >
         </activity>
-
-        <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyB31l0QBu-wZLPkMFf-wIe34lizRygc5LM" />
-
-        <service
-            android:name=".logic.mapsServices.GpsService"
-            android:process=":remote" />
-
         <activity
             android:name=".activities.TrainingList"
             android:label="@string/title_activity_list_tracks" >
         </activity>
         <activity
+            android:name=".activities.listTracks"
+            android:label="@string/title_activity_list_tracks"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".activities.TrainingActivity"
-            android:label="@string/title_activity_training" >
+            android:label="@string/title_activity_training"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activities.Register"
+            android:label="@string/title_activity_register"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 
