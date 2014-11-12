@@ -21,7 +21,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     private static DataBaseHelper instance = null;
     private static String DATA_BASE_NAME = "RunAndDataBase";
-    private static int DATA_BASE_VERSION = 1;
+    private static int DATA_BASE_VERSION = 6;
     private static Context context;
 
 
@@ -51,7 +51,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static DataBaseHelper getInstance(Context context) {
         if (instance == null) {
             //Kasowanie bazy
-            //context.deleteDatabase(DATA_BASE_NAME);
+            context.deleteDatabase(DATA_BASE_NAME);
             instance = new DataBaseHelper(context);
         }
         return instance;

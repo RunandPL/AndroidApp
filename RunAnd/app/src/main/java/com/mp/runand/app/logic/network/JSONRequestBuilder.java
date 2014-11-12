@@ -1,6 +1,6 @@
 package com.mp.runand.app.logic.network;
 
-import com.mp.runand.app.logic.CurrentUser;
+import com.mp.runand.app.logic.entities.CurrentUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;

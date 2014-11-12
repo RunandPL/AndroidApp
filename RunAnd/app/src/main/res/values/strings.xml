@@ -36,5 +36,7 @@
     <string name="email_and_password_are_required">Pola "Email" i "Hasło" są wymagane!</string>
     <string name="passwords_must_be_identical">Hasła muszą być identyczne!</string>
     <string name="can_not_get_G_data">Nie można pobrać wymaganych danych konta Google</string>
+    <string name="not_logged">Niezalogowany</string>
+    <string name="user">Użytkownik: </string>
 
 </resources>

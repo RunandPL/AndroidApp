@@ -8,8 +8,8 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.mp.runand.app.activities.MainActivity;
-import com.mp.runand.app.logic.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.entities.CurrentUser;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -114,7 +114,7 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
                     || jsonObjects[0].getString(Constants.type).equals(Constants.LogInType)) {
                 addUserAsLogged(jsonObjects);
             } else if (jsonObjects[0].get(Constants.type).equals(Constants.RegisterType)){
-                Toast.makeText(context,jsonObjects[1].getString("msg"),Toast.LENGTH_LONG);
+                Toast.makeText(context, jsonObjects[1].getString("msg"), Toast.LENGTH_LONG);
             }
         } catch (JSONException e) {
             e.printStackTrace();

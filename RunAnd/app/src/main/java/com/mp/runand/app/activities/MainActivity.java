@@ -5,34 +5,38 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.entities.CurrentUser;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity{
 
     @InjectView(R.id.treningButton) Button trainingButton;
+
+    CurrentUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
-
-        trainingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getBaseContext(), TrainingActivity.class);
-                startActivity(intent);
-            }
-        });
+        currentUser = DataBaseHelper.getInstance(this).getCurrentUser();
+        setLoggedUserInfo();
     }
+
+    @OnClick(R.id.treningButton)
+    public void beginTrening(){
+        Intent intent = new Intent(getBaseContext(), TrainingActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -56,12 +60,7 @@ public class MainActivity extends Activity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menu_logout:
-                DataBaseHelper db = DataBaseHelper.getInstance(null);
-                db.deleteCurrentUser();
-                //todo remove currentuser from properties if it will be added
-                Intent i = new Intent(this, Login.class);
-                startActivity(i);
-                finish();
+                logout();
 //            case R.id.help:
 //                showHelp();
 //                return true;
@@ -70,4 +69,24 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * setting title as logged user and change options menu
+     */
+    private void setLoggedUserInfo(){
+        if(currentUser.getUserName().equals("")){
+            setTitle(getText(R.string.not_logged));
+        }else{
+            setTitle(getText(R.string.user)+currentUser.getUserName());
+        }
+        //todo change options in menu
+    }
+
+    /**
+     * logout user
+     */
+    private void logout(){
+        DataBaseHelper.getInstance(this).deleteCurrentUser();
+        startActivity(new Intent(this,Login.class));
+        finish();
+    }
 }

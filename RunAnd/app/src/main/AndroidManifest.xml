@@ -59,11 +59,6 @@
             android:label="@string/title_activity_list_tracks" >
         </activity>
         <activity
-            android:name=".activities.listTracks"
-            android:label="@string/title_activity_list_tracks"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name=".activities.TrainingActivity"
             android:label="@string/title_activity_training"
             android:screenOrientation="portrait" >

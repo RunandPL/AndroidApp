@@ -8,7 +8,7 @@ public final class DatabaseConstants {
 
     //DB GENERAL
     public static String DATA_BASE_NAME = "RunAnd_Database";
-    public static int DATA_BASE_VERSION = 3;
+    public static int DATA_BASE_VERSION = 4;
 
     //Common column names
     public static final String ID = "id";
