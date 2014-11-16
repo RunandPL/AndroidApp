@@ -238,7 +238,7 @@ public class Login extends Activity
         if (currentUser != null && currentUser.getEmailAddress() != null) {
             new LoggingManager(this,true).execute(
                     JSONRequestBuilder.buildGPlusLogInRequestAsJson(
-                            currentUser.getUserName(),
+                            currentUser.getEmailAddress().split("@")[0],
                             currentUser.getEmailAddress()));
         }
     }
@@ -259,7 +259,7 @@ public class Login extends Activity
             if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
                 Person currentPerson = Plus.PeopleApi
                         .getCurrentPerson(mGoogleApiClient);
-                String login = (Plus.AccountApi.getAccountName(mGoogleApiClient).split("@"))[0];
+                String login = Plus.AccountApi.getAccountName(mGoogleApiClient);
                 return new CurrentUser(
                         currentPerson.getDisplayName(),
                         null,

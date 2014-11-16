@@ -16,9 +16,10 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 
-public class MainActivity extends Activity{
+public class MainActivity extends Activity {
 
-    @InjectView(R.id.treningButton) Button trainingButton;
+    @InjectView(R.id.treningButton)
+    Button trainingButton;
 
     CurrentUser currentUser;
 
@@ -27,16 +28,16 @@ public class MainActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+        //do not touch
         currentUser = DataBaseHelper.getInstance(this).getCurrentUser();
         setLoggedUserInfo();
     }
 
     @OnClick(R.id.treningButton)
-    public void beginTrening(){
+    public void beginTrening() {
         Intent intent = new Intent(getBaseContext(), TrainingActivity.class);
         startActivity(intent);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -46,10 +47,22 @@ public class MainActivity extends Activity{
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         //do nothing in this activity
         //otherwise it will close app
         //don't add in another activities
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (currentUser.getUserName().equals("")) {
+            menu.getItem(0).setVisible(false);
+            menu.getItem(1).setVisible(false);
+            menu.getItem(2).setVisible(false);
+        } else {
+            menu.getItem(3).setVisible(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -61,32 +74,38 @@ public class MainActivity extends Activity{
         switch (item.getItemId()) {
             case R.id.menu_logout:
                 logout();
-//            case R.id.help:
-//                showHelp();
-//                return true;
+                return true;
+            case R.id.menu_login:
+                logout();
+                return true;
+            case R.id.menu_profile_information:
+                startActivity(new Intent(this, ProfileInformation.class));
+                return true;
+            case R.id.menu_add_trainer:
+                startActivity(new Intent(this, AddTrainer.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     /**
-     * setting title as logged user and change options menu
+     * setting title as logged user
      */
-    private void setLoggedUserInfo(){
-        if(currentUser.getUserName().equals("")){
+    private void setLoggedUserInfo() {
+        if (currentUser.getUserName().equals("")) {
             setTitle(getText(R.string.not_logged));
-        }else{
-            setTitle(getText(R.string.user)+currentUser.getUserName());
+        } else {
+            setTitle(getText(R.string.user) + currentUser.getUserName());
         }
-        //todo change options in menu
     }
 
     /**
      * logout user
      */
-    private void logout(){
+    private void logout() {
         DataBaseHelper.getInstance(this).deleteCurrentUser();
-        startActivity(new Intent(this,Login.class));
+        startActivity(new Intent(this, Login.class));
         finish();
     }
 }

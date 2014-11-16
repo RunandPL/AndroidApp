@@ -69,6 +69,17 @@ public class JSONRequestBuilder {
         return jsonObj;
     }
 
+
+    public static JSONObject buildGetAvailableTrainersRequestAsJson(){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            jsonObject.put(Constants.type,Constants.GetTrainerList);
+        }catch(JSONException ex){
+            ex.printStackTrace();
+        }
+        return jsonObject;
+    }
+
     /**
      * Getting weather for locale
      * @param width

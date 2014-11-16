@@ -26,9 +26,9 @@ public class CurrentUser {
      * @param email email
      */
     public CurrentUser(String uName, String token, String email) {
-        this.emailAddress = email;
-        this.token = token;
         this.userName = uName;
+        this.token = token;
+        this.emailAddress = email;
     }
 
     public String getUserName() {

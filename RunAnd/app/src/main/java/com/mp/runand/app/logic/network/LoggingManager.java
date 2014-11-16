@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.mp.runand.app.activities.Login;
 import com.mp.runand.app.activities.MainActivity;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.CurrentUser;
@@ -26,6 +27,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+
 
 /**
  * Created by Mateusz on 2014-10-05.
@@ -68,6 +70,7 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
     @Override
     protected JSONObject[] doInBackground(JSONObject... jsonObjects) {
         try {
+            //only for debugging
             //android.os.Debug.waitForDebugger();
             //setting timeouts for connection
             HttpParams httpParameters = new BasicHttpParams();
@@ -84,19 +87,27 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
             HttpResponse serverResponse = httpClient.execute(request);
             HttpEntity entity = serverResponse.getEntity();
             String responseString = EntityUtils.toString(entity, "UTF-8");
-
+            //returning
             JSONObject[] ret = new JSONObject[2];
             ret[0] = param;
             ret[1] = new JSONObject(responseString);
             return ret;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            isError=true;
+            error+="internal error";
         } catch (JSONException e) {
             e.printStackTrace();
+            isError=true;
+            error+="internal error";
         } catch (ClientProtocolException e) {
             e.printStackTrace();
+            isError=true;
+            error+="internal error";
         } catch (IOException e) {
             e.printStackTrace();
+            isError=true;
+            error+="Can not connect to the server!";
         }
         return null;
     }
@@ -108,23 +119,28 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
     @Override
     protected void onPostExecute(JSONObject[] jsonObjects) {
         super.onPostExecute(jsonObjects);
-        try {
-            //if logging add current user to db and reload view
-            if (jsonObjects[0].getString(Constants.type).equals(Constants.GLogInType)
-                    || jsonObjects[0].getString(Constants.type).equals(Constants.LogInType)) {
-                addUserAsLogged(jsonObjects);
-            } else if (jsonObjects[0].get(Constants.type).equals(Constants.RegisterType)){
-                Toast.makeText(context, jsonObjects[1].getString("msg"), Toast.LENGTH_LONG);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } finally {
-            if (showDialog) {
-                progressDialog.dismiss();
-                if(isError){
-                    Toast.makeText(context,error,Toast.LENGTH_SHORT).show();
+        if(jsonObjects!=null) {
+            try {
+                if (jsonObjects[0].getString(Constants.type).equals(Constants.GLogInType)
+                        || jsonObjects[0].getString(Constants.type).equals(Constants.LogInType)) {
+                    addUserAsLogged(jsonObjects);
+                } else if (jsonObjects[0].get(Constants.type).equals(Constants.RegisterType)) {
+                    Toast.makeText(context, jsonObjects[1].getString("msg"), Toast.LENGTH_LONG).show();
+                    context.startActivity(new Intent(context, Login.class));
+                    ((Activity) context).finish();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                if (showDialog) {
+                    progressDialog.dismiss();
                 }
             }
+        }else{
+            if(showDialog){
+                progressDialog.dismiss();
+            }
+            Toast.makeText(context,error,Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -144,14 +160,14 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
                     jsonObjects[0].getString(Constants.mail)
             ));
         } else {//normal login
+            //todo check
             db.addCurrentUser( new CurrentUser(
                     jsonObjects[0].getString(Constants.gmailAcc),
                     jsonObjects[1].getString("token"),
                     jsonObjects[0].getString(Constants.mail)
             ));
         }
-        Intent i = new Intent(context, MainActivity.class);
-        context.startActivity(i);
+        context.startActivity(new Intent(context,MainActivity.class));
         ((Activity) context).finish();
     }
 
