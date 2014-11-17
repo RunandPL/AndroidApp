@@ -1,4 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mp.runand.app.activities.AddTrainer" >
+
+    <item android:id="@+id/refresh"
+        android:title="@string/refresh"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>

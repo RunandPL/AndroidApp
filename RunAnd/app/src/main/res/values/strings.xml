@@ -47,5 +47,6 @@
     <string name="normalTraining">Normalny Trening</string>
     <string name="routeTraining">Trening Po Trasie</string>
     <string name="notLoginTraining">Trening Bez Logowania</string>
+    <string name="refresh">Odświerz</string>
 
 </resources>

@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
 
     @OnClick(R.id.treningButton)
     public void beginTrening() {
-        Intent intent = new Intent(getBaseContext(), TrainingActivity.class);
+        Intent intent = new Intent(this, TrainingTypeActivity.class);
         startActivity(intent);
     }
 

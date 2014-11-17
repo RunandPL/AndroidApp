@@ -16,11 +16,14 @@ public class Constants {
     public static final String LogInType = "login";
     public static final String RegisterType = "register";
     public static final String GetTrainerList = "api/connect";
-    public static final String RejectTrainer = "";
-    public static final String AcceptTrainer = "";
+    public static final String RejectTrainer = "api/connect/reject";
+    public static final String AcceptTrainer = "api/connect/accept";
 
     //JSON login
     public static final String gmailAcc = "uname";
     public static final String mail = "username";
     public static final String password = "password";
+
+    //accept trainer
+    public static final String requestID = "requestID";
 }

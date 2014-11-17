@@ -14,6 +14,7 @@ import com.mp.runand.app.logic.entities.CurrentUser;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -38,6 +39,8 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
     Context context;
     boolean showDialog;
     ProgressDialog progressDialog;
+
+    //internal variables
     Boolean isError = false;
     String error = "";
 
@@ -70,27 +73,31 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
     @Override
     protected JSONObject[] doInBackground(JSONObject... jsonObjects) {
         try {
-            //only for debugging
+            //uncomment only for debugging
             //android.os.Debug.waitForDebugger();
+
             //setting timeouts for connection
             HttpParams httpParameters = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParameters, Constants.timeoutConnection);
+
             //connecting
             DefaultHttpClient httpClient = new DefaultHttpClient(httpParameters);
             HttpPost request = new HttpPost(Constants.server + jsonObjects[0].get(Constants.type).toString());
+
             //adding params to request
             JSONObject param = jsonObjects[0];
             StringEntity stringEntity = new StringEntity(param.toString());
             stringEntity.setContentType("application/json");
             request.setEntity(stringEntity);
+
             //execute and obtaining response
             HttpResponse serverResponse = httpClient.execute(request);
+            StatusLine sl = serverResponse.getStatusLine();
             HttpEntity entity = serverResponse.getEntity();
             String responseString = EntityUtils.toString(entity, "UTF-8");
+
             //returning
-            JSONObject[] ret = new JSONObject[2];
-            ret[0] = param;
-            ret[1] = new JSONObject(responseString);
+            JSONObject[] ret = {jsonObjects[0],new JSONObject(responseString)};
             return ret;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -160,7 +167,6 @@ public class LoggingManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
                     jsonObjects[0].getString(Constants.mail)
             ));
         } else {//normal login
-            //todo check
             db.addCurrentUser( new CurrentUser(
                     jsonObjects[0].getString(Constants.gmailAcc),
                     jsonObjects[1].getString("token"),

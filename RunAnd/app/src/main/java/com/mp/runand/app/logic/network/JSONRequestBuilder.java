@@ -69,12 +69,47 @@ public class JSONRequestBuilder {
         return jsonObj;
     }
 
-
+    /**
+     * Get the list of trainers for user
+     * @return jsonObject with request
+     */
     public static JSONObject buildGetAvailableTrainersRequestAsJson(){
         JSONObject jsonObject = new JSONObject();
         try{
             jsonObject.put(Constants.type,Constants.GetTrainerList);
         }catch(JSONException ex){
+            ex.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    /**
+     * Accept trainer
+     * @param trainerId id of trainer to accept
+     * @return jsonObject with request
+     */
+    public static JSONObject buildAcceptTrainerRequestAsJson(long trainerId){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            jsonObject.put(Constants.type,Constants.AcceptTrainer);
+            jsonObject.put(Constants.requestID,trainerId);
+        } catch(JSONException ex) {
+            ex.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    /**
+     * Reject trainer
+     * @param trainerId id of trainer to reject
+     * @return jsonObject with request
+     */
+    public static JSONObject buildRejectTrainerRequestAsJson(long trainerId){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            jsonObject.put(Constants.type,Constants.RejectTrainer);
+            jsonObject.put(Constants.requestID,trainerId);
+        } catch(JSONException ex) {
             ex.printStackTrace();
         }
         return jsonObject;
