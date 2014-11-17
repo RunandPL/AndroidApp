@@ -166,6 +166,6 @@ public class GpsService extends Service {
     }
 
     private void toJestTaFunkcjaKtoraChcialesZebymZaimplementowalCoSieWykonujeCo20SekundMamNadziejeZeChodziloCiOCosTakiegoJakNieToNapiszIDajMiZnacToWtedyCosZmienieChociazZPoczatkuPewnieNieBedeWiedzialCoAleSieCosZmieniRunAndBrunieckiDupaKamieniKupaNieChceMiSieJuzTejInzynierkiPisacIOgolnieJestemZmeczonyFunctionHaHaHaHaHaHa() {
-        
+
     }
 }

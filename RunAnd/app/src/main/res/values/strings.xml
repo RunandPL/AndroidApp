@@ -12,13 +12,13 @@
     <string name="loginTextViewEmail">Email:</string>
     <string name="textViewPassword">Hasło:</string>
     <string name="loginButton">Zaloguj się</string>
-    <string name="loginForgotPassword">Zapomniałem dupy</string>
+    <string name="loginForgotPassword">Zapomniałem hasła</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_map_look">MapLook</string>
     <string name="menu_logout">Wyloguj</string>
-    <string name="title_activity_list_tracks">Lista Dup</string>
-    <string name="title_activity_training">TrainingDupa</string>
+    <string name="title_activity_list_tracks">Lista Tras</string>
+    <string name="title_activity_training">Training</string>
     <string name="startTraining">Rozpocznij Trening</string>
     <string name="stopTraining">Zakończ Trening</string>
     <string name="showTrainingHistory">Historia Dup</string>
@@ -27,7 +27,7 @@
     <string name="skip_login">SkipLogin</string>
     <string name="Register">Register</string>
     <string name="title_activity_register">Register</string>
-    <string name="textViewRepeatPassword">Powtórz Dupy:</string>
+    <string name="textViewRepeatPassword">Powtórz Hasło:</string>
     <string name="RegisterBtn">Zarejestruj</string>
     <string name="register_password">Hasło</string>
     <string name="password_is_required">Pole "Dupa" jest wymagane!</string>
