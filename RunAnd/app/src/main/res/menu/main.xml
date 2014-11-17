@@ -2,13 +2,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mp.runand.app.activities.MainActivity" >
 
+    <item android:id="@+id/menu_profile_information"
+        android:title="@string/profile_information_menu_button"
+        android:orderInCategory="1"
+        android:showAsAction="never"/>
+
+    <item android:id="@+id/menu_add_trainer"
+        android:title="@string/add_trainer_menu_button"
+        android:orderInCategory="2"
+        android:showAsAction="never" />
+
     <item android:id="@+id/menu_logout"
         android:title="@string/menu_logout"
         android:orderInCategory="100"
         android:showAsAction="never" />
 
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
+    <item android:id="@+id/menu_login"
+        android:title="@string/login_menu_button"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="never"/>
 </menu>
