@@ -19,6 +19,8 @@ public class Track {
     private long userID;
     //Counted middle point of Track in formatted String
     private Location area;
+    //Only to track choose activity
+    private boolean choosen;
 
 
     public Track() {
@@ -29,6 +31,7 @@ public class Track {
         this.bestTime = 0;
         this.userID = 0;
         this.area = null;
+        this.choosen = false;
     }
 
     public Track(Date lastUpdate, ArrayList<Location> route, double length, long bestTime, long userID, Location area) {
@@ -38,6 +41,7 @@ public class Track {
         this.bestTime = bestTime;
         this.userID = userID;
         this.area = area;
+        this.choosen = false;
     }
 
     public Date getLastUpdate() {
@@ -92,9 +96,17 @@ public class Track {
         this.area = area;
     }
 
+    public boolean isChoosen() {
+        return choosen;
+    }
+
+    public void setChoosen(boolean choosen) {
+        this.choosen = choosen;
+    }
+
     /*
-    Just to debug
-     */
+        Just to debug
+         */
     public String toString() {
         String result = "Data: " + lastUpdate.toString();
         return result;

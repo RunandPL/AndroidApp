@@ -218,6 +218,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return getTrackFromCursor(cursor);
     }
 
+    public ArrayList<Track> getAllTracks() {
+        String query = "Select * from " + DatabaseConstants.TRACK_TABLE_NAME;
+        SQLiteDatabase database = getReadableDatabase();
+        ArrayList<Track> result = new ArrayList<Track>();
+
+        Cursor cursor = database.rawQuery(query, null);
+        if(cursor.moveToFirst()) {
+            do {
+                result.add(getTrackFromCursor(cursor));
+            } while(cursor.moveToNext());
+        }
+        return result;
+    }
+
     /**
      * Getting every track which belong to User with given userName
      *

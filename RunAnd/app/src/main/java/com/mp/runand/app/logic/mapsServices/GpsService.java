@@ -34,6 +34,9 @@ public class GpsService extends Service {
     private long stopTime = 0;
     private Location lastLocation = null;
     private MessagesReader messagesReader;
+    private long delta;
+    private long t1;
+    private long t2;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -52,6 +55,7 @@ public class GpsService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        t1 = System.currentTimeMillis();
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
         messagesReader = new MessagesReader(getBaseContext());
         new Thread(messagesReader).start();
@@ -87,6 +91,14 @@ public class GpsService extends Service {
                 }
                 if(startTracking) {
                     updatePositionsList(location);
+                }
+                //Pomiar czasu
+                t2 = System.currentTimeMillis();
+                delta += t2 - t1;
+                t1 = t2;
+                if(delta == 20000) {
+                    delta = 0;
+                    toJestTaFunkcjaKtoraChcialesZebymZaimplementowalCoSieWykonujeCo20SekundMamNadziejeZeChodziloCiOCosTakiegoJakNieToNapiszIDajMiZnacToWtedyCosZmienieChociazZPoczatkuPewnieNieBedeWiedzialCoAleSieCosZmieniRunAndBrunieckiDupaKamieniKupaNieChceMiSieJuzTejInzynierkiPisacIOgolnieJestemZmeczonyFunctionHaHaHaHaHaHa();
                 }
             }
         };
@@ -151,5 +163,9 @@ public class GpsService extends Service {
         else if (isNewer && !isLessAccurate)
             return true;
         return false;
+    }
+
+    private void toJestTaFunkcjaKtoraChcialesZebymZaimplementowalCoSieWykonujeCo20SekundMamNadziejeZeChodziloCiOCosTakiegoJakNieToNapiszIDajMiZnacToWtedyCosZmienieChociazZPoczatkuPewnieNieBedeWiedzialCoAleSieCosZmieniRunAndBrunieckiDupaKamieniKupaNieChceMiSieJuzTejInzynierkiPisacIOgolnieJestemZmeczonyFunctionHaHaHaHaHaHa() {
+        
     }
 }

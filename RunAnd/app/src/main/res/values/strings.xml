@@ -43,5 +43,9 @@
     <string name="add_trainer_menu_button">Dodaj trenera</string>
     <string name="title_activity_profile_information">ProfileInformation</string>
     <string name="title_activity_add_trainer">AddTrainer</string>
+    <string name="chooseTrack">Wybierz Trasę</string>
+    <string name="normalTraining">Normalny Trening</string>
+    <string name="routeTraining">Trening Po Trasie</string>
+    <string name="notLoginTraining">Trening Bez Logowania</string>
 
 </resources>
