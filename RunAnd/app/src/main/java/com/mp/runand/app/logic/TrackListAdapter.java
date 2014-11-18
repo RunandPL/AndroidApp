@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mp.runand.app.R;
-import com.mp.runand.app.logic.database.Track;
+import com.mp.runand.app.logic.entities.Track;
 
 import java.util.ArrayList;
 

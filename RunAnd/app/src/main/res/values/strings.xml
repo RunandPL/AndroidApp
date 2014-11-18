@@ -5,7 +5,7 @@
     <string name="run_and_splash1">RunAnd</string>
     <string name="run_and_splash2">Just run and ...</string>
     <string name="title_activity_login">Login</string>
-    <string name="login_header">Zaloguj se by zyskać dostęp do treningów</string>
+    <string name="login_header">Zaloguj się by zyskać dostęp do treningów</string>
     <string name="action_settings">Ustawienia</string>
     <string name="login_password">Hasło</string>
     <string name="loginEmail">E-mail</string>
@@ -21,7 +21,7 @@
     <string name="title_activity_training">Training</string>
     <string name="startTraining">Rozpocznij Trening</string>
     <string name="stopTraining">Zakończ Trening</string>
-    <string name="showTrainingHistory">Historia Dup</string>
+    <string name="showTrainingHistory">Historia Treningów</string>
     <string name="training">Trening</string>
     <string name="title_activity_training_detail">TrainingDetailActivity</string>
     <string name="skip_login">SkipLogin</string>
@@ -30,7 +30,7 @@
     <string name="textViewRepeatPassword">Powtórz Hasło:</string>
     <string name="RegisterBtn">Zarejestruj</string>
     <string name="register_password">Hasło</string>
-    <string name="password_is_required">Pole "Dupa" jest wymagane!</string>
+    <string name="password_is_required">Pole "Hasłoa" jest wymagane!</string>
     <string name="email_is_not_valid">Niepoprawny Email!</string>
     <string name="email_is_required">Pole Email jest wymagane!</string>
     <string name="email_and_password_are_required">Pola "Email" i "Hasło" są wymagane!</string>

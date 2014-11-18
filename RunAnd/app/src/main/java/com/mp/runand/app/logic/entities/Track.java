@@ -9,6 +9,7 @@ import java.util.ArrayList;
  * Created by Sebastian on 2014-10-14.
  */
 public class Track {
+    private int id;
     private Date lastUpdate;
     //Every location of this track
     private ArrayList<Location> route;
@@ -32,9 +33,10 @@ public class Track {
         this.userID = 0;
         this.area = null;
         this.choosen = false;
+        this.id = 0;
     }
 
-    public Track(Date lastUpdate, ArrayList<Location> route, double length, long bestTime, long userID, Location area) {
+    public Track(int id, Date lastUpdate, ArrayList<Location> route, double length, long bestTime, long userID, Location area) {
         this.lastUpdate = lastUpdate;
         this.route = route;
         this.length = length;
@@ -42,6 +44,19 @@ public class Track {
         this.userID = userID;
         this.area = area;
         this.choosen = false;
+        this.id = id;
+    }
+
+    public Track(Date lastUpdate, ArrayList<Location> route, double length, long bestTime, long userID, Location area) {
+        this(-1, lastUpdate, route, length, bestTime, userID, area);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Date getLastUpdate() {

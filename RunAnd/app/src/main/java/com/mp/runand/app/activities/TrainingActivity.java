@@ -20,6 +20,8 @@ import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
 import com.mp.runand.app.logic.mapsServices.GpsService;
+import com.mp.runand.app.logic.mapsServices.RouteFollowService;
+import com.mp.runand.app.logic.training.TrainingConstants;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ public class TrainingActivity extends Activity {
 
     @InjectView(R.id.startTrainingButton) Button startButton;
     @InjectView(R.id.stopTrainingButton) Button stopButton;
-    @InjectView(R.id.showHistoryButton) Button historyButton;
 
     private boolean endOfTraining = false;
     private boolean serviceStarted = false;
@@ -44,52 +45,67 @@ public class TrainingActivity extends Activity {
     private long trainingTime;
     private int burnedCalories;
 
+    //Training configuration
+    boolean isRouteTraining;
+    boolean isUserLoggedIn;
+    private ArrayList<Location> routeToFollow = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training);
         ButterKnife.inject(this);
 
+        Intent intent = getIntent();
+        isRouteTraining = intent.getBooleanExtra(TrainingConstants.IS_ROUTE_TRAINING, false);
+        isUserLoggedIn = intent.getBooleanExtra(TrainingConstants.IS_USER_LOGGED_IN, false);
+
+        if(isRouteTraining)
+            routeToFollow = intent.getParcelableArrayListExtra(TrainingConstants.ROUTE_TO_FOLLOW);
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    startService(new Intent(getBaseContext(), GpsService.class));
-                    serviceStarted = true;
-                    endOfTraining = false;
-                    positionsOK  = false;
+                startService(new Intent(getBaseContext(), GpsService.class));
+                //Start service checking route follow
+                if(isRouteTraining) {
+                    Intent intent = new Intent(getBaseContext(), RouteFollowService.class);
+                    intent.putParcelableArrayListExtra(TrainingConstants.ROUTE_TO_FOLLOW, routeToFollow);
+                    startService(intent);
+                }
+                serviceStarted = true;
+                endOfTraining = false;
+                positionsOK  = false;
             }
         });
 
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    stopService(new Intent(getBaseContext(), GpsService.class));
-                    serviceStarted = false;
-                    endOfTraining = true;
-            }
-        });
-
-        historyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getBaseContext(), TrainingList.class);
-                startActivity(intent);
+                stopService(new Intent(getBaseContext(), GpsService.class));
+                if(isRouteTraining)
+                    stopService(new Intent(getBaseContext(), RouteFollowService.class));
+                serviceStarted = false;
+                endOfTraining = true;
             }
         });
     }
 
     private void saveTrainingToDatabase() {
-        if(positionsOK) {
+        if(positionsOK && isUserLoggedIn) {
             DataBaseHelper dataBaseHelper = DataBaseHelper.getInstance(getBaseContext());
             CurrentUser currentUser = dataBaseHelper.getCurrentUser();
             Location area = new Location("none");
             area.setLatitude(12.0);
             area.setLongitude(45.0);
-            Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
-            Training newTraining = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
-            //dataBaseHelper.addTrack(track, currentUser.getUserName());
-            dataBaseHelper.addTraining(newTraining);
+            if(!isRouteTraining) {
+                Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
+                Training newTraining = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
+                dataBaseHelper.addTraining(newTraining);
+            } else {
+                Training newTraining = new Training(currentUser.getEmailAddress(), trainingTime, null, burnedCalories, 0.0);
+                dataBaseHelper.addTrainingOnExistingTrack(newTraining, getIntent().getIntExtra("trackID", -1));
+            }
             Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
         }
     }
@@ -144,10 +160,10 @@ public class TrainingActivity extends Activity {
     }
 
     private void getTrainingData(Intent intent) {
-        locations  = intent.getParcelableArrayListExtra("POSITIONS");
-        burnedCalories = intent.getIntExtra("BURNED_CALORIES", 0);
-        trackLength = intent.getFloatExtra("LENGTH", 0);
-        trainingTime = intent.getLongExtra("TRAINING_TIME", 0);
+        locations  = intent.getParcelableArrayListExtra(TrainingConstants.POSITIONS);
+        burnedCalories = intent.getIntExtra(TrainingConstants.BURNED_CALORIES, 0);
+        trackLength = intent.getFloatExtra(TrainingConstants.TRAININ_LENGTH, 0);
+        trainingTime = intent.getLongExtra(TrainingConstants.TRAINING_TIME, 0);
         if(locations != null && locations.size() > 0) {
             positionsOK = true;
             saveTrainingToDatabase();

@@ -57,12 +57,23 @@
         </activity>
         <activity
             android:name=".activities.TrainingList"
-            android:label="@string/title_activity_list_tracks" >
+            android:label="@string/title_activity_list_tracks"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".activities.TrainingActivity"
             android:label="@string/title_activity_training"
             android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activities.TrainingTypeActivity"
+            android:label="TypeTraining"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".activities.TrackChooseActivity"
+            android:label="ChooseTrack"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".activities.Register"

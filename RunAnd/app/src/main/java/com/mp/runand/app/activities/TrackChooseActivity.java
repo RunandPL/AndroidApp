@@ -50,7 +50,7 @@ public class TrackChooseActivity extends Activity implements AdapterView.OnItemC
         intent.putExtra(TrainingConstants.IS_USER_LOGGED_IN, true);
         intent.putExtra(TrainingConstants.IS_ROUTE_TRAINING, true);
         intent.putParcelableArrayListExtra(TrainingConstants.ROUTE_TO_FOLLOW, tracks.get(choosenNumber).getRoute());
-        Toast.makeText(getBaseContext(), "Wybrano trase " + choosenNumber, Toast.LENGTH_SHORT).show();
+        intent.putExtra("trackID", tracks.get(choosenNumber).getId());
         startActivity(intent);
     }
     private DataBaseHelper dataBaseHelper;

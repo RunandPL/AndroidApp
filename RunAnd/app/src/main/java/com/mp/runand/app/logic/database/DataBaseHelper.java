@@ -259,6 +259,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void addTraining(Training training) {
         //Writing track to database
         int trackID = addTrack(training.getTrack());
+        saveTraining(training, trackID);
+    }
+
+    public void addTrainingOnExistingTrack(Training training, int trackID) {
+        saveTraining(training, trackID);
+    }
+
+    private void saveTraining(Training training, int trackID) {
         SQLiteDatabase database = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -319,6 +327,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      */
     private Track getTrackFromCursor(Cursor cursor) {
         Track track = new Track();
+        track.setId(cursor.getInt(cursor.getColumnIndex(DatabaseConstants.ID)));
         track.setBestTime(cursor.getLong(cursor.getColumnIndex(DatabaseConstants.TRACK_BEST_TIME)));
         track.setLastUpdate(cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_LAST_UPDATE)));
         track.setLength(cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.TRACK_LENGTH)));

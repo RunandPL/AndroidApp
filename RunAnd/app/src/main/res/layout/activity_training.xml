@@ -1,4 +1,4 @@
-<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,22 +13,14 @@
         android:layout_height="wrap_content"
         android:text="@string/startTraining"
         android:id="@+id/startTrainingButton"
-        android:layout_x="110dp"
-        android:layout_y="48dp" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/stopTraining"
         android:id="@+id/stopTrainingButton"
-        android:layout_x="114dp"
-        android:layout_y="158dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/showTrainingHistory"
-        android:id="@+id/showHistoryButton"
-        android:layout_x="130dp"
-        android:layout_y="275dp" />
-</AbsoluteLayout>
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"/>
+</RelativeLayout>
