@@ -119,6 +119,23 @@ public class Track {
         this.choosen = choosen;
     }
 
+    public String getSendableRoute() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for(int i=0; i<route.size(); i++){
+            sb.append("{")
+                .append("\"x\":").append(route.get(i).getLatitude()).append(", ")
+                .append("\"y\":").append(route.get(i).getLongitude()).append(", ")
+                .append("\"z\":").append(route.get(i).getAltitude())
+                .append("}");
+            if(i!=route.size()-1){
+                sb.append(",");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
     /*
         Just to debug
          */

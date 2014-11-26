@@ -32,7 +32,7 @@ import java.util.List;
  * Task which accept or reject trainer
  * Created by Mateusz on 2014-11-17.
  */
-public class TrainerManager extends AsyncTask<JSONObject,Void,JSONObject[]> {
+public class TrainerManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
 
     //needed for activity update
     List<Trainer> trainerList;
@@ -69,7 +69,7 @@ public class TrainerManager extends AsyncTask<JSONObject,Void,JSONObject[]> {
 
     @Override
     protected JSONObject[] doInBackground(JSONObject... jsonObjects) {
-        try{
+        try {
             //only for debugging
             //android.os.Debug.waitForDebugger();
             //setting timeouts for connection
@@ -88,37 +88,37 @@ public class TrainerManager extends AsyncTask<JSONObject,Void,JSONObject[]> {
 
             //execute and obtaining response
             HttpResponse serverResponse = httpClient.execute(request);
-            if(serverResponse.getStatusLine().getStatusCode()==200){
-                success=true;
+            if (serverResponse.getStatusLine().getStatusCode() == 200) {
+                success = true;
             }
             HttpEntity entity = serverResponse.getEntity();
             String responseString = EntityUtils.toString(entity, "UTF-8");
 
-            JSONObject[] ret = {jsonObjects[0],new JSONObject(responseString)};
+            JSONObject[] ret = {jsonObjects[0], new JSONObject(responseString)};
             return ret;
-        }catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-            isError=true;
-            error+="internal error";
+            isError = true;
+            error += "internal error";
         } catch (JSONException e) {
             e.printStackTrace();
-            isError=true;
-            error+="internal error";
+            isError = true;
+            error += "internal error";
         } catch (ClientProtocolException e) {
             e.printStackTrace();
-            isError=true;
-            error+="internal error";
+            isError = true;
+            error += "internal error";
         } catch (IOException e) {
             e.printStackTrace();
-            isError=true;
-            error+="Can not connect to the server!";
+            isError = true;
+            error += "Can not connect to the server!";
         }
         return null;
     }
 
     @Override
     protected void onPostExecute(JSONObject[] jsonObjects) {
-        if(success){
+        if (success) {
             try {
                 updateList(jsonObjects[0].getLong(Constants.requestID));
                 showMessage(jsonObjects);
@@ -141,13 +141,14 @@ public class TrainerManager extends AsyncTask<JSONObject,Void,JSONObject[]> {
 
     /**
      * Removing trainer from the list of available trainers and updating view
+     *
      * @param TrainerId id of trainer to remove
      */
-    private void updateList(long TrainerId){
+    private void updateList(long TrainerId) {
         Trainer toRemove = null;
-        for(Trainer t : trainerList){
-            if(t.getId()==TrainerId){
-                toRemove=t;
+        for (Trainer t : trainerList) {
+            if (t.getId() == TrainerId) {
+                toRemove = t;
             }
         }
         trainerList.remove(toRemove);
@@ -158,14 +159,15 @@ public class TrainerManager extends AsyncTask<JSONObject,Void,JSONObject[]> {
 
     /**
      * Show status message and close activity if action was accept
+     *
      * @param jsonObjects params
      * @throws JSONException
      */
-    private void showMessage(JSONObject[] jsonObjects) throws JSONException{
+    private void showMessage(JSONObject[] jsonObjects) throws JSONException {
         progressDialog.dismiss();
         Toast.makeText(context, jsonObjects[1].getString("msg"), Toast.LENGTH_SHORT).show();
-        if(jsonObjects[1].getString(Constants.type).equals(Constants.AcceptTrainer)){
-            ((Activity)context).finish();
+        if (jsonObjects[1].getString(Constants.type).equals(Constants.AcceptTrainer)) {
+            ((Activity) context).finish();
         }
     }
 }

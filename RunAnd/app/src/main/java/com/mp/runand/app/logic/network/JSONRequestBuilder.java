@@ -1,7 +1,10 @@
 package com.mp.runand.app.logic.network;
 
 import com.mp.runand.app.logic.entities.CurrentUser;
+import com.mp.runand.app.logic.entities.Track;
+import com.mp.runand.app.logic.entities.Training;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,11 +23,11 @@ public class JSONRequestBuilder {
     public static JSONObject buildLogInRequestAsJson(String mail, String password, String username){
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put(Constants.type,Constants.LogInType);
-            jsonObj.put(Constants.mail, mail);
-            jsonObj.put(Constants.password, password);
-            jsonObj.put(Constants.gmailAcc, username);
-            jsonObj.put("isTrainer",false);
+            jsonObj.put(Constants.type,Constants.LogInType)
+            .put(Constants.mail, mail)
+            .put(Constants.password, password)
+            .put(Constants.gmailAcc, username)
+            .put("isTrainer",false);
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
@@ -40,10 +43,10 @@ public class JSONRequestBuilder {
     public static JSONObject buildGPlusLogInRequestAsJson(String username, String mail){
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put(Constants.type,Constants.GLogInType);
-            jsonObj.put(Constants.gmailAcc,username); //username
-            jsonObj.put("isTrainer",false);
-            jsonObj.put(Constants.mail,mail); //mail
+            jsonObj.put(Constants.type,Constants.GLogInType)
+            .put(Constants.gmailAcc,username) //username
+            .put("isTrainer",false)
+            .put(Constants.mail,mail); //mail
         } catch(JSONException ex) {
             ex.printStackTrace();
         }
@@ -59,10 +62,10 @@ public class JSONRequestBuilder {
     public static JSONObject buildRegisterRequestAsJson(String username, String password){
         JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put(Constants.type,Constants.RegisterType);
-            jsonObj.put("isTrainer",false);
-            jsonObj.put(Constants.mail,username);
-            jsonObj.put(Constants.password,password);
+            jsonObj.put(Constants.type,Constants.RegisterType)
+            .put("isTrainer",false)
+            .put(Constants.mail,username)
+            .put(Constants.password,password);
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
@@ -91,8 +94,8 @@ public class JSONRequestBuilder {
     public static JSONObject buildAcceptTrainerRequestAsJson(long trainerId){
         JSONObject jsonObject = new JSONObject();
         try{
-            jsonObject.put(Constants.type,Constants.AcceptTrainer);
-            jsonObject.put(Constants.requestID,trainerId);
+            jsonObject.put(Constants.type,Constants.AcceptTrainer)
+            .put(Constants.requestID,trainerId);
         } catch(JSONException ex) {
             ex.printStackTrace();
         }
@@ -107,10 +110,49 @@ public class JSONRequestBuilder {
     public static JSONObject buildRejectTrainerRequestAsJson(long trainerId){
         JSONObject jsonObject = new JSONObject();
         try{
-            jsonObject.put(Constants.type,Constants.RejectTrainer);
-            jsonObject.put(Constants.requestID,trainerId);
+            jsonObject.put(Constants.type,Constants.RejectTrainer)
+            .put(Constants.requestID,trainerId);
         } catch(JSONException ex) {
             ex.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    /**
+     *  track as json request
+     * @param t track object
+     * @return json req
+     */
+    public static  JSONObject buildSendTrackRequestAsJson(Track t){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            jsonObject.put(Constants.type,Constants.SendTrack)
+            .put(Constants.track, t.getSendableRoute())
+            .put(Constants.description,"todo get description in track")
+            .put(Constants.isPublic, true)
+            .put(Constants.length,t.getLength());
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
+
+    /**
+     *  training as json request
+     * @param t training
+     * @param cu current user
+     * @return json req
+     */
+    public static JSONObject buildSendTrainingRequestAsJson(Training t, CurrentUser cu){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            jsonObject.put(Constants.type,Constants.SendTraining)
+            .put(Constants.lengthTime,t.getLengthTime())
+            .put(Constants.burnedCalories,t.getBurnedCalories())
+            .put(Constants.speedRate,t.getSpeedRate())
+            .put(Constants.track,buildSendTrackRequestAsJson(t.getTrack()));
+        }catch (JSONException e){
+            e.printStackTrace();
         }
         return jsonObject;
     }

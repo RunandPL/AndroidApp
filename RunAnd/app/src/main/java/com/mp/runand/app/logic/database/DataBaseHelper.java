@@ -51,7 +51,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static DataBaseHelper getInstance(Context context) {
         if (instance == null) {
             //Kasowanie bazy
-            context.deleteDatabase(DATA_BASE_NAME);
+            //context.deleteDatabase(DATA_BASE_NAME);
             instance = new DataBaseHelper(context);
         }
         return instance;

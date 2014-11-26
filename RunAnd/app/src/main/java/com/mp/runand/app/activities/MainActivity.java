@@ -2,6 +2,8 @@ package com.mp.runand.app.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +13,16 @@ import android.widget.Button;
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.CurrentUser;
+import com.mp.runand.app.logic.entities.Track;
+import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.network.JSONRequestBuilder;
+import com.mp.runand.app.logic.network.TrackSender;
+import com.mp.runand.app.logic.network.TrainingSender;
+
+import org.json.JSONObject;
+
+import java.sql.Date;
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -30,6 +42,9 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
+    @InjectView(R.id.tmp)
+            Button tmp;
+
     CurrentUser currentUser;
 
     @Override
@@ -42,6 +57,33 @@ public class MainActivity extends Activity {
         setLoggedUserInfo();
     }
 
+    @OnClick(R.id.tmp)
+    public void test(){
+        Location area = new Location("none");
+        area.setLatitude(12.0);
+        area.setLongitude(45.0);
+        Location area2 = new Location("none");
+        area2.setLatitude(14.0);
+        area2.setLongitude(47.0);
+
+        ArrayList<Location> ll = new ArrayList<Location>();
+        ll.add(area);
+        ll.add(area2);
+        Track t = new Track(new Date(System.currentTimeMillis()),ll,11,11,11,area);
+        Training tt = new Training("mail",345,t,23,23);
+
+        JSONObject trasa = JSONRequestBuilder.buildSendTrackRequestAsJson(t);
+        JSONObject training = JSONRequestBuilder.buildSendTrainingRequestAsJson(tt,currentUser);
+
+        //how to send training
+        //new TrainingSender(this, currentUser).execute(tt);
+        //how to send track
+        new TrackSender(this,currentUser).execute(t);
+
+        t=null;
+    }
+
+
     @OnClick(R.id.treningButton)
     public void beginTrening() {
         Intent intent = new Intent(this, TrainingTypeActivity.class);
@@ -52,6 +94,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        setLoggedUserInfo();
         return true;
     }
 
@@ -103,6 +146,8 @@ public class MainActivity extends Activity {
      */
     private void setLoggedUserInfo() {
         if (currentUser.getUserName().equals("")) {
+            //todo don't know why this isn't working
+            setTitleColor(getResources().getColor(R.color.notlogged));
             setTitle(getText(R.string.not_logged));
         } else {
             setTitle(getText(R.string.user) + currentUser.getUserName());

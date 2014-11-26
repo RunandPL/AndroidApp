@@ -48,5 +48,9 @@
     <string name="routeTraining">Trening Po Trasie</string>
     <string name="notLoginTraining">Trening Bez Logowania</string>
     <string name="refresh">Odświerz</string>
+    <string name="TrackSavedMessage">Trasa zapisana na serwerze</string>
+    <string name="TrainingSavedMessage">Trening został zapisany na serwerze</string>
+    <string name="refreshProfileInformation">Odśwież</string>
+    <string name="profile_email_address_text">ADRES EMAIL:</string>
 
 </resources>
