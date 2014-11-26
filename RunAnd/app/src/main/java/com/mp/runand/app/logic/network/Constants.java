@@ -7,7 +7,10 @@ public class Constants {
 
     //Server
     //for testing
-    public static final String server ="http://89.79.234.30:3000/";
+    //pawel
+    //public static final String server ="http://89.79.234.30:3000/";
+    //global
+    public static final String server = "http://api.runand.greeters.pl:3500/";
     public static final int timeoutConnection = 4000;
 
     //JSON types
