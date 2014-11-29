@@ -23,4 +23,18 @@
         android:id="@+id/stopTrainingButton"
         android:layout_centerInParent="true"
         android:layout_centerHorizontal="true"/>
+    <ImageView
+        android:layout_width="400dp"
+        android:layout_height="150dp"
+        android:layout_below="@id/stopTrainingButton"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/imageViewTraining"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/takePicture"
+        android:id="@+id/takePictureButton"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

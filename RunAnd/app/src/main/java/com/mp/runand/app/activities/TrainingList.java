@@ -2,6 +2,7 @@ package com.mp.runand.app.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.TrainingListAdapter;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.training.TrainingConstants;
 
 import java.util.ArrayList;
 
@@ -60,8 +62,8 @@ public class TrainingList extends Activity implements AdapterView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Intent intent = new Intent(getBaseContext(), MapLook.class);
-        intent.putExtra("POSITIONS", trainings.get((int) l).getTrack().getRoute());
+        Intent intent = new Intent(this, TrainingSummation.class);
+        intent.putExtra(TrainingConstants.TRAINING, trainings.get((int) l));
         startActivity(intent);
     }
 }

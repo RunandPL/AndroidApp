@@ -55,7 +55,6 @@ public class MainActivity extends Activity {
         ButterKnife.inject(this);
         //do not touch
         currentUser = DataBaseHelper.getInstance(this).getCurrentUser();
-        setLoggedUserInfo();
     }
 
     @OnClick(R.id.tmp)

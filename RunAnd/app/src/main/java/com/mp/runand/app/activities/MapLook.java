@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -25,6 +26,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.mp.runand.app.R;
+import com.mp.runand.app.logic.training.TrainingConstants;
+import com.mp.runand.app.logic.training.TrainingImage;
 
 /**
  * Created by Sebastian on 2014-10-09.
@@ -36,6 +39,7 @@ public class MapLook extends Activity {
     private Polyline polyline = null;
     private Marker startMarker = null;
     private Marker stopMarker = null;
+    private ArrayList<TrainingImage> images = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,7 @@ public class MapLook extends Activity {
         Intent intent = getIntent();
         ArrayList<Location> positionList = intent.getParcelableArrayListExtra("POSITIONS");
         positions = getAsLatLngTable(positionList);
+        images = intent.getParcelableArrayListExtra(TrainingConstants.IMAGES);
         putTrackOnMap();
     }
 

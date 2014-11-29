@@ -63,4 +63,6 @@
     <string name="write_password2">powtórz nowe hasło:</string>
     <string name="password_too_short">Hasło jest za krótkie</string>
     <string name="password_set_ok">Nowe hasło zostało ustawione</string>
+    <string name="title_activity_training_summation">Podsumowanie Treningu</string>
+    <string name="takePicture">Zrób zdjęcie</string>
 </resources>

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
 
     <uses-feature
         android:glEsVersion="0x00020000"
@@ -28,6 +29,10 @@
         <service
             android:name=".logic.mapsServices.GpsService"
             android:process=":remote" />
+        <service
+            android:name="com.mp.runand.app.logic.training.ActivityRecognitionIntentService"
+            android:exported="false">
+        </service>
 
         <activity
             android:name=".activities.SplashScreen"
@@ -58,7 +63,7 @@
         <activity
             android:name=".activities.TrainingList"
             android:label="@string/title_activity_list_tracks"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".activities.TrainingActivity"
@@ -68,12 +73,12 @@
         <activity
             android:name=".activities.TrainingTypeActivity"
             android:label="TypeTraining"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".activities.TrackChooseActivity"
             android:label="ChooseTrack"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".activities.Register"
@@ -83,12 +88,16 @@
         <activity
             android:name=".activities.ProfileInformation"
             android:label="@string/title_activity_profile_information"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".activities.AddTrainer"
             android:label="@string/title_activity_add_trainer"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".activities.TrainingSummation"
+            android:label="@string/title_activity_training_summation" >
         </activity>
     </application>
 

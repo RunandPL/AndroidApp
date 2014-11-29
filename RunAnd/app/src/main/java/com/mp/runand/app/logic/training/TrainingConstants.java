@@ -12,4 +12,8 @@ public class TrainingConstants {
     public static String TRAININ_LENGTH = "trainingLength";
     public static String BURNED_CALORIES = "burnedCalories";
     public static String POSITIONS = "positions";
+    public static String PACE = "pace";
+    public static String TRAINING = "training";
+    public static String ACTIVITY_TYPE = "activityType";
+    public static String IMAGES = "images";
 }

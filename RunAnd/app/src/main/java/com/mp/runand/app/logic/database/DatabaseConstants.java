@@ -41,4 +41,11 @@ public final class DatabaseConstants {
     public static final String TRAIN_TABLE_DATE = "date";
     public static final String TRAIN_TABLE_BURNED_CALORIES = "burnedCalories";
     public static final String TRAIN_TABLE_SPEED_RATE = "speedRate";
+    public static final String TRAIN_TABLE_PACE = "pace";
+
+    //Image table
+    public static final String IMAGE_TABLE_NAME = "images";
+    public static final String IMAGE_TABLE_TRAINING_ID = "trainingID";
+    public static final String IMAGE_TABLE_IMAGE = "image";
+    public static final String IMAGE_TABLE_LOCATION = "location";
 }

@@ -4,8 +4,10 @@ package com.mp.runand.app.logic.mapsServices;
 import java.util.ArrayList;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,7 +15,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import com.mp.runand.app.logic.training.ActivityRecognitionIntentService;
 import com.mp.runand.app.logic.training.MessagesReader;
+import com.mp.runand.app.logic.training.TrainingConstants;
 
 /**
  * Created by Sebastian on 2014-10-09.
@@ -37,6 +41,7 @@ public class GpsService extends Service {
     private long delta;
     private long t1;
     private long t2;
+    private MyReciver myReciver;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -51,6 +56,7 @@ public class GpsService extends Service {
         Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
         locationManager.removeUpdates(locationListener);
         messagesReader.terminate();
+        unregisterReciver();
     }
 
     @Override
@@ -103,7 +109,20 @@ public class GpsService extends Service {
             }
         };
         locationManager.requestLocationUpdates(LOCATION_PROVIDER, 0, 0, locationListener);
+        registerReciver();
         return START_NOT_STICKY;
+    }
+
+    private void registerReciver() {
+        myReciver = new MyReciver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ActivityRecognitionIntentService.NAME);
+        registerReceiver(myReciver, intentFilter);
+    }
+
+    private void unregisterReciver() {
+        unregisterReceiver(myReciver);
+        myReciver = null;
     }
 
     private void sendData(String data) {
@@ -118,10 +137,10 @@ public class GpsService extends Service {
         long timeDiffrence = stopTime - startTime;
         Intent intent = new Intent();
         intent.setAction(ACTION);
-        intent.putParcelableArrayListExtra("POSITIONS", locations);
-        intent.putExtra("TRAINING_TIME", timeDiffrence);
-        intent.putExtra("LENGTH", length);
-        intent.putExtra("BURNED_CALORIES", burnedCalories);
+        intent.putParcelableArrayListExtra(TrainingConstants.POSITIONS, locations);
+        intent.putExtra(TrainingConstants.TRAINING_TIME, timeDiffrence);
+        intent.putExtra(TrainingConstants.TRAININ_LENGTH, Math.round(length));
+        intent.putExtra(TrainingConstants.BURNED_CALORIES, burnedCalories);
         sendBroadcast(intent);
     }
 
@@ -167,5 +186,17 @@ public class GpsService extends Service {
 
     private void toJestTaFunkcjaKtoraChcialesZebymZaimplementowalCoSieWykonujeCo20SekundMamNadziejeZeChodziloCiOCosTakiegoJakNieToNapiszIDajMiZnacToWtedyCosZmienieChociazZPoczatkuPewnieNieBedeWiedzialCoAleSieCosZmieniRunAndBrunieckiDupaKamieniKupaNieChceMiSieJuzTejInzynierkiPisacIOgolnieJestemZmeczonyFunctionHaHaHaHaHaHa() {
 
+    }
+
+    private class MyReciver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String data = intent.getStringExtra(TrainingConstants.ACTIVITY_TYPE);
+            //If data is null this means that we get tracked positions from GpsService
+            if(data != null) {
+                Toast.makeText(GpsService.this, data, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

@@ -5,13 +5,27 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mp.runand.app.R;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.training.TrainingImage;
+
+import org.apache.http.util.ByteArrayBuffer;
 
 /**
  * Created by Sebastian on 2014-10-13.
@@ -46,7 +60,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             + "(" + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.TRAIN_TABLE_USER_EMAIL + " TEXT NOT NULL, "
             + DatabaseConstants.TRAIN_TABLE_LENGTH_TIME + " INTEGER NOT NULL, " + DatabaseConstants.TRAIN_TABLE_TRACK_ID + " INTEGER NOT NULL, "
             + DatabaseConstants.TRAIN_TABLE_BURNED_CALORIES + " INTEGER NOT NULL, " + DatabaseConstants.TRAIN_TABLE_SPEED_RATE + " FLOAT NOT NULL,"
-            + DatabaseConstants.TRAIN_TABLE_DATE + " DATE NOT NULL)";
+            + DatabaseConstants.TRAIN_TABLE_PACE + " DOUBLE NOT NULL, " + DatabaseConstants.TRAIN_TABLE_DATE + " DATE NOT NULL)";
+
+    private static final String CREATE_IMAGE_TABLE = "CREATE TABLE " + DatabaseConstants.IMAGE_TABLE_NAME + "("
+            + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.IMAGE_TABLE_TRAINING_ID + " INTEGER NOT NULL, "
+            + DatabaseConstants.IMAGE_TABLE_IMAGE + " BLOB NOT NULL, " + DatabaseConstants.IMAGE_TABLE_LOCATION + " TEXT NOT NULL)";
 
     public static DataBaseHelper getInstance(Context context) {
         if (instance == null) {
@@ -68,6 +86,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         dataBase.execSQL(CREATE_TRACKS_TABLE);
         dataBase.execSQL(CREATE_USER_TRAINING_TABLE);
         dataBase.execSQL(CREATE_TRAINING_TABLE);
+        dataBase.execSQL(CREATE_IMAGE_TABLE);
     }
 
     @Override
@@ -256,17 +275,17 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         return result;
     } */
-    public void addTraining(Training training) {
+    public long addTraining(Training training) {
         //Writing track to database
         int trackID = addTrack(training.getTrack());
-        saveTraining(training, trackID);
+        return saveTraining(training, trackID);
     }
 
-    public void addTrainingOnExistingTrack(Training training, int trackID) {
-        saveTraining(training, trackID);
+    public long addTrainingOnExistingTrack(Training training, int trackID) {
+        return saveTraining(training, trackID);
     }
 
-    private void saveTraining(Training training, int trackID) {
+    private long saveTraining(Training training, int trackID) {
         SQLiteDatabase database = getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -276,9 +295,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(DatabaseConstants.TRAIN_TABLE_USER_EMAIL, training.getUserEmail());
         contentValues.put(DatabaseConstants.TRAIN_TABLE_TRACK_ID, trackID);
         contentValues.put(DatabaseConstants.TRAIN_TABLE_DATE, training.getDate().toString());
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_PACE, training.getPace());
 
-        database.insert(DatabaseConstants.TRAIN_TABLE_NAME, null, contentValues);
+        long trainingID = database.insert(DatabaseConstants.TRAIN_TABLE_NAME, null, contentValues);
         database.close();
+        return  trainingID;
     }
 
     public List<Training> getUserTrainings(String emailAddress) {
@@ -295,7 +316,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         cursor.getInt(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_LENGTH_TIME)),
                         cursor.getInt(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_BURNED_CALORIES)),
                         cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_SPEED_RATE)),
-                        cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_DATE)));
+                        cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_DATE)),
+                        cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_PACE)));
                 //Getting track from database
                 training.setTrack(getTrack(cursor.getLong(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_TRACK_ID))));
                 trainings.add(training);
@@ -303,6 +325,55 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         }
         database.close();
         return trainings;
+    }
+
+    public void addImage(long trainingID, TrainingImage trainingImage){
+            SQLiteDatabase database = getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DatabaseConstants.IMAGE_TABLE_TRAINING_ID, trainingID);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            trainingImage.getImage().compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            contentValues.put(DatabaseConstants.IMAGE_TABLE_IMAGE, stream.toByteArray());
+        contentValues.put(DatabaseConstants.IMAGE_TABLE_LOCATION, DatabaseUtils.areaToString(trainingImage.getLocation()));
+            database.insert(DatabaseConstants.IMAGE_TABLE_NAME, null, contentValues);
+            database.close();
+    }
+
+    public TrainingImage getImage(int imageID) {
+        String query = "SELECT * FROM " + DatabaseConstants.IMAGE_TABLE_NAME + " WHERE " + DatabaseConstants.ID + " = " + imageID;
+        SQLiteDatabase database = getReadableDatabase();
+        Cursor cursor = database.rawQuery(query, null);
+        if(!cursor.moveToFirst())
+            return null;
+        return getTrainingImageFromCursor(cursor);
+    }
+
+    public ArrayList<TrainingImage> getImagesForTraining(int trainingID) {
+        String query = "SELECT * FROM " + DatabaseConstants.IMAGE_TABLE_NAME + " WHERE " + DatabaseConstants.IMAGE_TABLE_TRAINING_ID + " = " + trainingID;
+        ArrayList<TrainingImage> result = new ArrayList<TrainingImage>();
+        SQLiteDatabase database = getReadableDatabase();
+        Cursor cursor = database.rawQuery(query, null);
+        //If cursor is empty return empty List
+        if(!cursor.moveToFirst())
+            return result;
+        do {
+            result.add(getTrainingImageFromCursor(cursor));
+        } while(cursor.moveToNext());
+        return result;
+    }
+
+    /**
+     * Retrieve Bitmap from given cursor
+     * @param cursor to retrieve image from
+     * @return Retrieved Bitmap
+     */
+    private TrainingImage getTrainingImageFromCursor(Cursor cursor) {
+        byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex(DatabaseConstants.IMAGE_TABLE_IMAGE));
+        TrainingImage trainingImage = new TrainingImage();
+        trainingImage.setLocation(DatabaseUtils.stringToArea(cursor.getString(cursor.getColumnIndex(DatabaseConstants.IMAGE_TABLE_LOCATION))));
+        ByteArrayInputStream bais = new ByteArrayInputStream(imageByteArray);
+        trainingImage.setImage(BitmapFactory.decodeStream(bais));
+        return trainingImage;
     }
 
     /**
