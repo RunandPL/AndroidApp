@@ -177,4 +177,44 @@ public class JSONRequestBuilder {
         }
         return jsonObject;
     }
+
+
+    /**
+     * create begin training request as Json
+     *
+     * @param latitude  start latitude
+     * @param longitude start longitude
+     * @param altitude  start altitude
+     * @return
+     */
+    public static JSONObject buildStartLiveTrainingRequestAsJson(double latitude, double longitude, double altitude) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(Constants.type, Constants.beginLiveTraining);
+            jsonObject.put(Constants.latitude, latitude);
+            jsonObject.put(Constants.longitude, longitude);
+            jsonObject.put(Constants.altitude, altitude);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject;
+    }
+
+    /**
+     * stopping live training as json request
+     *
+     * @return jsonReq
+     */
+    public static JSONObject buildStopLiveTrainingRequestAsJson(Training training) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(Constants.type, Constants.stopLiveTaining);
+            jsonObject.put(Constants.training, training);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return jsonObject;
+    }
 }

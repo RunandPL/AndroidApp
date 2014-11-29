@@ -26,6 +26,8 @@ public class Constants {
     public static final String getTrainer = "api/trainer";
     public static final String isPassword = "api/password";
     public static final String setPassword = "api/password/change";
+    public static final String beginLiveTraining = "api/live/start";
+    public static final String stopLiveTaining = "api/live/stop";
 
     //JSON login
     public static final String gmailAcc = "uname";
@@ -44,5 +46,11 @@ public class Constants {
     public static final String speedRate = "speedRate";
     public static final String burnedCalories = "burnedCalories";
     public static final String lengthTime = "lengthTime";
+
+    //training manager
+    public static String training = "training";
+    public static String latitude = "x";
+    public static String longitude = "y";
+    public static String altitude = "z";
 
 }

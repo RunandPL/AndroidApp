@@ -16,6 +16,7 @@ import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
 import com.mp.runand.app.logic.network.JSONRequestBuilder;
+import com.mp.runand.app.logic.network.LiveTrainingManager;
 import com.mp.runand.app.logic.network.TrackSender;
 import com.mp.runand.app.logic.network.TrainingSender;
 
@@ -71,16 +72,19 @@ public class MainActivity extends Activity {
         ll.add(area2);
         Track t = new Track(new Date(System.currentTimeMillis()),ll,11,11,11,area);
         Training tt = new Training("mail",345,t,23,23);
+//
+//        JSONObject trasa = JSONRequestBuilder.buildSendTrackRequestAsJson(t);
+//        JSONObject training = JSONRequestBuilder.buildSendTrainingRequestAsJson(tt);
+//
+//        //how to send training
+//        //new TrainingSender(this, currentUser).execute(tt);
+//        //how to send track
+//        new TrackSender(this,currentUser).execute(t);
+//
+//        t=null;
 
-        JSONObject trasa = JSONRequestBuilder.buildSendTrackRequestAsJson(t);
-        JSONObject training = JSONRequestBuilder.buildSendTrainingRequestAsJson(tt);
-
-        //how to send training
-        //new TrainingSender(this, currentUser).execute(tt);
-        //how to send track
-        new TrackSender(this,currentUser).execute(t);
-
-        t=null;
+        new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(10,10,10));
+        new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(tt));
     }
 
 
