@@ -3,11 +3,14 @@ package com.mp.runand.app.logic.network;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.mp.runand.app.activities.Login;
+import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Trainer;
 
@@ -43,6 +46,8 @@ public class TrainerListUpdater extends AsyncTask<JSONObject, Void, JSONObject[]
     boolean isError = false;
     String error = "";
     ArrayAdapter arrayAdapter;
+    boolean success = false;
+    boolean tokenFailure = false;
 
     public TrainerListUpdater(Context context, ListView lv, ArrayAdapter aa, CurrentUser cu, List<Trainer> trainers) {
         this.context = context;
@@ -79,6 +84,21 @@ public class TrainerListUpdater extends AsyncTask<JSONObject, Void, JSONObject[]
             request.setHeader("Authorization", "Bearer " + currentUser.getToken());
             //execute and obtaining response
             HttpResponse serverResponse = httpClient.execute(request);
+            if(serverResponse.getStatusLine().getStatusCode()==200){
+                success = true;
+                HttpEntity entity = serverResponse.getEntity();
+                String responseString = EntityUtils.toString(entity, "UTF-8");
+                //returning
+                JSONObject[] ret = new JSONObject[2];
+                ret[0] = jsonObjects[0];
+                ret[1] = new JSONObject(responseString);
+                return ret;
+            } else if ( serverResponse.getStatusLine().getStatusCode()==401){
+                isError = true;
+                tokenFailure = true;
+                error = "zaloguj się ponownie, twoj token autoryzacyjny wygasł";
+                return null;
+            }
             HttpEntity entity = serverResponse.getEntity();
             String responseString = EntityUtils.toString(entity, "UTF-8");
             //returning
@@ -108,7 +128,7 @@ public class TrainerListUpdater extends AsyncTask<JSONObject, Void, JSONObject[]
 
     @Override
     protected void onPostExecute(JSONObject[] jsonObjects) {
-        if (jsonObjects[1] != null) {
+        if (success) {
             try {
                 trainerList.addAll(parseJsonArray(jsonObjects[1].getJSONArray("msg")));
                 arrayAdapter = new ArrayAdapter<Trainer>(context, android.R.layout.simple_list_item_1, trainerList);
@@ -120,8 +140,14 @@ public class TrainerListUpdater extends AsyncTask<JSONObject, Void, JSONObject[]
                 progressDialog.dismiss();
             }
         } else {
+            progressDialog.dismiss();
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
             progressDialog.dismiss();
+            if(tokenFailure) {
+                DataBaseHelper.getInstance(context).deleteCurrentUser();
+                context.startActivity(new Intent(context,Login.class));
+                ((Activity) context).finish();
+            }
         }
     }
 

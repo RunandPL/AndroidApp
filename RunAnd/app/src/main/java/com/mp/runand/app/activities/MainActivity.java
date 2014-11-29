@@ -73,7 +73,7 @@ public class MainActivity extends Activity {
         Training tt = new Training("mail",345,t,23,23);
 
         JSONObject trasa = JSONRequestBuilder.buildSendTrackRequestAsJson(t);
-        JSONObject training = JSONRequestBuilder.buildSendTrainingRequestAsJson(tt,currentUser);
+        JSONObject training = JSONRequestBuilder.buildSendTrainingRequestAsJson(tt);
 
         //how to send training
         //new TrainingSender(this, currentUser).execute(tt);

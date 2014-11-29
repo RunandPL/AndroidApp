@@ -52,5 +52,15 @@
     <string name="TrainingSavedMessage">Trening został zapisany na serwerze</string>
     <string name="refreshProfileInformation">Odśwież</string>
     <string name="profile_email_address_text">ADRES EMAIL:</string>
-
+    <string name="profile_trainer_email_address_text">ADRES EMAIL TRENERA:</string>
+    <string name="remove_trainer_button">Zwolnij trenera</string>
+    <string name="change_password_txt">Zmiana hasła:</string>
+    <string name="change_password_btn">Zmień hasło</string>
+    <string name="set_password_txt">To konto nie ma jeszcze ustawionego hasła!\nUstaw hasło:</string>
+    <string name="set_password_btn">Ustaw hasło</string>
+    <string name="no_trainer_profile_info">Brak</string>
+    <string name="write_password1">podaj nowe hasło:</string>
+    <string name="write_password2">powtórz nowe hasło:</string>
+    <string name="password_too_short">Hasło jest za krótkie</string>
+    <string name="password_set_ok">Nowe hasło zostało ustawione</string>
 </resources>

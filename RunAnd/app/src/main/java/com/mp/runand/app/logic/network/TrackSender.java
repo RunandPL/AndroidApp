@@ -1,11 +1,16 @@
 package com.mp.runand.app.logic.network;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.mp.runand.app.R;
+import com.mp.runand.app.activities.Login;
+import com.mp.runand.app.activities.MainActivity;
+import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Track;
 
@@ -37,6 +42,7 @@ public class TrackSender extends AsyncTask<Track,Void,JSONObject> {
     //internal variables
     Boolean isError = false;
     String error = "";
+    boolean tokenFailure = false;
     boolean success = false;
 
     public TrackSender(Context ctx, CurrentUser cu){
@@ -90,11 +96,20 @@ public class TrackSender extends AsyncTask<Track,Void,JSONObject> {
             HttpResponse serverResponse = httpClient.execute(request);
             if(serverResponse.getStatusLine().getStatusCode()==200){
                 success=true;
-            }
-            HttpEntity entity = serverResponse.getEntity();
-            String responseString = EntityUtils.toString(entity, "UTF-8");
+                HttpEntity entity = serverResponse.getEntity();
+                String responseString = EntityUtils.toString(entity, "UTF-8");
 
-            return new JSONObject(responseString);
+                return new JSONObject(responseString);
+            }if(serverResponse.getStatusLine().getStatusCode()==401){
+                isError = true;
+                tokenFailure = true;
+                error = "zaloguj się ponownie, twoj token autoryzacyjny wygasł";
+                return null;
+            }
+//            HttpEntity entity = serverResponse.getEntity();
+//            String responseString = EntityUtils.toString(entity, "UTF-8");
+//
+//            return new JSONObject(responseString);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             isError = true;
@@ -126,6 +141,11 @@ public class TrackSender extends AsyncTask<Track,Void,JSONObject> {
             Toast.makeText(context, context.getString(R.string.TrackSavedMessage), Toast.LENGTH_SHORT).show();
         } else if (isError) {
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+            if(tokenFailure){
+                DataBaseHelper.getInstance(context).deleteCurrentUser();
+                context.startActivity(new Intent(context,Login.class));
+                ((Activity) context).finish();
+            }
         } else {
             try {
                 Toast.makeText(context, jsonObject.getString("msg"), Toast.LENGTH_SHORT).show();

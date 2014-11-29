@@ -23,6 +23,9 @@ public class Constants {
     public static final String AcceptTrainer = "api/connect/accept";
     public static final String SendTraining = "api/workout";
     public static final String SendTrack = "api/route";
+    public static final String getTrainer = "api/trainer";
+    public static final String isPassword = "api/password";
+    public static final String setPassword = "api/password/change";
 
     //JSON login
     public static final String gmailAcc = "uname";
