@@ -58,7 +58,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
         try {
             //only for debugging
-            android.os.Debug.waitForDebugger();
+            //android.os.Debug.waitForDebugger();
             type = jsonObjects[0].getString("type");
             j=jsonObjects[0];
             success = doAction(jsonObjects[0]);

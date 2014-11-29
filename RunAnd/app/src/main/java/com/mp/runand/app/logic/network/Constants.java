@@ -28,6 +28,7 @@ public class Constants {
     public static final String setPassword = "api/password/change";
     public static final String beginLiveTraining = "api/live/start";
     public static final String stopLiveTaining = "api/live/stop";
+    public static final String liveUpdate = "api/live/update";
 
     //JSON login
     public static final String gmailAcc = "uname";

@@ -1,5 +1,7 @@
 package com.mp.runand.app.logic.network;
 
+import android.location.Location;
+
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
 
@@ -190,10 +192,10 @@ public class JSONRequestBuilder {
     public static JSONObject buildStartLiveTrainingRequestAsJson(double latitude, double longitude, double altitude) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(Constants.type, Constants.beginLiveTraining);
-            jsonObject.put(Constants.latitude, latitude);
-            jsonObject.put(Constants.longitude, longitude);
-            jsonObject.put(Constants.altitude, altitude);
+            jsonObject.put(Constants.type, Constants.beginLiveTraining)
+                    .put(Constants.latitude, latitude)
+                    .put(Constants.longitude, longitude)
+                    .put(Constants.altitude, altitude);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -209,12 +211,31 @@ public class JSONRequestBuilder {
     public static JSONObject buildStopLiveTrainingRequestAsJson(Training training) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(Constants.type, Constants.stopLiveTaining);
-            jsonObject.put(Constants.training, training);
+            jsonObject.put(Constants.type, Constants.stopLiveTaining)
+                    .put(Constants.training, training);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        return jsonObject;
+    }
+
+    /**
+     * create json request to update progress during training
+     *
+     * @param l current location
+     * @return jsonRequest
+     */
+    public static JSONObject buildSendCurrentLocationRequestAsJson(Location l) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put(Constants.type, Constants.liveUpdate);
+            jsonObject.put(Constants.longitude, l.getLongitude());
+            jsonObject.put(Constants.latitude, l.getLatitude());
+            jsonObject.put(Constants.altitude, l.getLatitude());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return jsonObject;
     }
 }

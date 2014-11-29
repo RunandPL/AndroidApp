@@ -15,6 +15,7 @@ import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.network.CurrentLocationSender;
 import com.mp.runand.app.logic.network.JSONRequestBuilder;
 import com.mp.runand.app.logic.network.LiveTrainingManager;
 import com.mp.runand.app.logic.network.TrackSender;
@@ -83,6 +84,8 @@ public class MainActivity extends Activity {
 //        t=null;
 
         new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(10,10,10));
+        new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area));
+        new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area2));
         new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(tt));
     }
 
