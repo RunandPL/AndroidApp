@@ -94,7 +94,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
     protected void onPostExecute(JSONObject jsonObject) {
         super.onPostExecute(jsonObject);
         if (success) {
-            publishProgress(success);
+            publishProgress(true);
         } else if (isError) {
             if (tokenFailure) {
                 unauthorized();
@@ -108,7 +108,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
     /**
      * begin training
      *
-     * @param values
+     * @param values true if ok else false
      */
     @Override
     protected void onProgressUpdate(Boolean... values) {

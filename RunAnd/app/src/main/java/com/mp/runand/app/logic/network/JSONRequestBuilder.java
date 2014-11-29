@@ -185,7 +185,7 @@ public class JSONRequestBuilder {
      * @param latitude  start latitude
      * @param longitude start longitude
      * @param altitude  start altitude
-     * @return
+     * @return json request
      */
     public static JSONObject buildStartLiveTrainingRequestAsJson(double latitude, double longitude, double altitude) {
         JSONObject jsonObject = new JSONObject();
