@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.mp.runand.app.activities.Login;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.CurrentUser;
+import com.mp.runand.app.logic.entities.Training;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -44,6 +45,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
     String error = "";
     boolean tokenFailure = false;
     String type;
+    JSONObject j = null;
 
     public LiveTrainingManager(Context ctx, CurrentUser cu) {
         this.currentUser = cu;
@@ -58,6 +60,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
             //only for debugging
             android.os.Debug.waitForDebugger();
             type = jsonObjects[0].getString("type");
+            j=jsonObjects[0];
             success = doAction(jsonObjects[0]);
             return jsonObjects[0];
         } catch (UnsupportedEncodingException e) {
@@ -117,7 +120,12 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
             if (type.equals(Constants.beginLiveTraining)) {
                 //todo begin training
             } else {
-                //todo end training
+                try {
+                    Training t = (Training)j.get(Constants.training);
+                    t=null;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
