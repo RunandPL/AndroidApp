@@ -44,14 +44,17 @@ public class Register extends Activity {
         ButterKnife.inject(this);
     }
 
+    /**
+     * begin registering
+     */
     @OnClick(R.id.register)
     public void rejestruj() {
         String email = editTextEmail.getText().toString();
         String password = editTextPassword.getText().toString();
         String password2 = editTextPassword2.getText().toString();
 
-        if(validateEmail(email) && comparePasswords(password, password2)){
-            new LoggingManager(this,true).execute(
+        if (validateEmail(email) && comparePasswords(password, password2) && validatePassword(password)) {
+            new LoggingManager(this, true).execute(
                     JSONRequestBuilder.buildRegisterRequestAsJson(
                             email,
                             password));
@@ -59,28 +62,56 @@ public class Register extends Activity {
         }
     }
 
-    private boolean validateEmail(String email){
+    /**
+     * Email validation
+     *
+     * @param email email to valadate
+     * @return true if ok else false
+     */
+    private boolean validateEmail(String email) {
         emailMatcher = VALID_EMAIL_ADDRESS_PATTERN.matcher(email);
-        if(email.equals("")){
-            Toast.makeText(this,getText(R.string.email_is_required),Toast.LENGTH_SHORT).show();
+        if (email.equals("")) {
+            Toast.makeText(this, getText(R.string.email_is_required), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if(emailMatcher.find()){
+        if (emailMatcher.find()) {
             return true;
-        }else{
-            Toast.makeText(this,getText(R.string.email_is_not_valid),Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, getText(R.string.email_is_not_valid), Toast.LENGTH_SHORT).show();
             return false;
         }
     }
 
-    private boolean comparePasswords(String password1, String password2){
-        if(password1.equals("")){
-            Toast.makeText(this,getText(R.string.password_is_required),Toast.LENGTH_SHORT).show();
+    /**
+     * check if both passwords are identical
+     *
+     * @param password1 password1
+     * @param password2 repeated password
+     * @return true if ok else false
+     */
+    private boolean comparePasswords(String password1, String password2) {
+        if (password1.equals("")) {
+            Toast.makeText(this, getText(R.string.password_is_required), Toast.LENGTH_SHORT).show();
             return false;
         }
-        if(!password1.equals(password2)){
-            Toast.makeText(this,getText(R.string.passwords_must_be_identical),Toast.LENGTH_SHORT).show();
+        if (!password1.equals(password2)) {
+            Toast.makeText(this, getText(R.string.passwords_must_be_identical), Toast.LENGTH_SHORT).show();
         }
         return true;
+    }
+
+    /**
+     * password validation
+     *
+     * @param password password
+     * @return true if ok else false
+     */
+    boolean validatePassword(String password) {
+        if (password.length() > 4) {
+            return true;
+        } else {
+            Toast.makeText(this, getText(R.string.password_too_short), Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 }
