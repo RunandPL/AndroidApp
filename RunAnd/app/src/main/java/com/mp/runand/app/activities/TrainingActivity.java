@@ -1,37 +1,33 @@
 package com.mp.runand.app.activities;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.ExifInterface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.ActivityRecognitionClient;
-import com.google.android.gms.maps.model.LatLng;
 import com.mp.runand.app.R;
-import com.mp.runand.app.logic.NameBuilder;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
 import com.mp.runand.app.logic.mapsServices.GpsService;
 import com.mp.runand.app.logic.mapsServices.RouteFollowService;
+import com.mp.runand.app.logic.network.JSONRequestBuilder;
+import com.mp.runand.app.logic.network.LiveTrainingManager;
 import com.mp.runand.app.logic.training.ActivityRecongnition;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
@@ -52,19 +48,20 @@ import butterknife.OnClick;
 
 public class TrainingActivity extends Activity {
     private final int REQUEST_IMAGE_CAPTURE = 1;
+    public static final String NAME = "trainingActivity";
 
     @InjectView(R.id.startTrainingButton) Button startButton;
 
     @OnClick(R.id.startTrainingButton)
     void startButtonOnClick(Button button) {
-        startService(new Intent(getBaseContext(), GpsService.class));
+        startTraining();
         //Start service checking route follow
         if(isRouteTraining) {
             Intent intent = new Intent(getBaseContext(), RouteFollowService.class);
             intent.putParcelableArrayListExtra(TrainingConstants.ROUTE_TO_FOLLOW, routeToFollow);
             startService(intent);
         }
-        serviceStarted = true;
+        trainingStarted = true;
         endOfTraining = false;
         positionsOK  = false;
         activityRecongnition.startUpdates();
@@ -74,10 +71,10 @@ public class TrainingActivity extends Activity {
 
     @OnClick(R.id.stopTrainingButton)
     void stopButtonOnClick() {
-        stopService(new Intent(getBaseContext(), GpsService.class));
+        stopTraining();
         if(isRouteTraining)
             stopService(new Intent(getBaseContext(), RouteFollowService.class));
-        serviceStarted = false;
+        trainingStarted = false;
         endOfTraining = true;
         activityRecongnition.stopUpdates();
     }
@@ -88,13 +85,7 @@ public class TrainingActivity extends Activity {
     @OnClick(R.id.takePictureButton)
     void takePictuteButtonOnClick(Button button) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        CurrentUser currentUser = databaseHelper.getCurrentUser();
-        File imageFile = NameBuilder.createImageFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "dupa");
-        if(intent.resolveActivity(getPackageManager()) != null && imageFile != null) {
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(imageFile));
-            lastPicturePath = Uri.fromFile(imageFile).toString();
-            lastPicturePath = lastPicturePath.substring(7);
-            Toast.makeText(this, lastPicturePath, Toast.LENGTH_LONG).show();
+        if(intent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
         }
     }
@@ -103,7 +94,7 @@ public class TrainingActivity extends Activity {
     ImageView imageView;
 
     private boolean endOfTraining = false;
-    private boolean serviceStarted = false;
+    private boolean trainingStarted = false;
     private boolean positionsOK = false;
 
     private MyReciver myReciver;
@@ -126,6 +117,8 @@ public class TrainingActivity extends Activity {
     private ArrayList<String> imagePaths;
     private ArrayList<Location> imagesLocations;
     private ArrayList<TrainingImage> images;
+    private Location lastLocation;
+    private CurrentUser currentUser;
 
 
 
@@ -135,6 +128,7 @@ public class TrainingActivity extends Activity {
         setContentView(R.layout.activity_training);
         ButterKnife.inject(this);
 
+        startService(new Intent(this, GpsService.class));
         Intent intent = getIntent();
         isRouteTraining = intent.getBooleanExtra(TrainingConstants.IS_ROUTE_TRAINING, false);
         isUserLoggedIn = intent.getBooleanExtra(TrainingConstants.IS_USER_LOGGED_IN, false);
@@ -147,6 +141,29 @@ public class TrainingActivity extends Activity {
         imagePaths = new ArrayList<String>();
         imagesLocations = new ArrayList<Location>();
         images = new ArrayList<TrainingImage>();
+        currentUser = databaseHelper.getCurrentUser();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(this, GpsService.class));
+    }
+
+    private void startTraining() {
+        Intent intent =  new Intent();
+        intent.setAction(NAME);
+        intent.putExtra("SET_TRAINING", "START");
+        sendBroadcast(intent);
+        trainingStarted = true;
+    }
+
+    private void stopTraining() {
+        Intent intent = new Intent();
+        intent.setAction(NAME);
+        intent.putExtra("SET_TRAINING", "STOP");
+        sendBroadcast(intent);
+        trainingStarted = false;
     }
 
     private void saveTrainingToDatabase() {
@@ -156,7 +173,7 @@ public class TrainingActivity extends Activity {
             Location area = new Location("none");
             area.setLatitude(12.0);
             area.setLongitude(45.0);
-            long trainingID = -1;
+            long trainingID;
             if(!isRouteTraining) {
                 Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
                 training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
@@ -166,7 +183,7 @@ public class TrainingActivity extends Activity {
                 training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
                 trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1));
             }
-            for(int i = 0; i < imagePaths.size(); i++) {
+            for(int i = 0; i < images.size(); i++) {
                 dataBaseHelper.addImage(trainingID, images.get(i));
             }
             Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
@@ -191,11 +208,14 @@ public class TrainingActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = intent.getExtras();
             TrainingImage trainingImage = new TrainingImage();
-            geoTagPicture(trainingImage);
-            getImageFromFile(trainingImage);
+            //geoTagPicture(trainingImage);
+            //getImageFromFile(trainingImage);
+            trainingImage.setLocation(lastLocation);
+            trainingImage.setImage((Bitmap) extras.get("data"));
             images.add(trainingImage);
-            imagePaths.add(lastPicturePath);
+            //imagePaths.add(lastPicturePath);
             lastPicturePath = "";
         }
     }
@@ -205,11 +225,11 @@ public class TrainingActivity extends Activity {
         if(!imageFile.exists())
             return;
 
-        BufferedInputStream bis = null;
+        BufferedInputStream bis;
         try {
             bis = new BufferedInputStream(new FileInputStream(imageFile), 256);
             ByteArrayBuffer baf = new ByteArrayBuffer(256);
-            int current = 0;
+            int current;
             while ((current = bis.read()) != -1) {
                 baf.append((byte) current);
             }
@@ -255,13 +275,13 @@ public class TrainingActivity extends Activity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean("SERVICE_STARTED", serviceStarted);
+        savedInstanceState.putBoolean("SERVICE_STARTED", trainingStarted);
         savedInstanceState.putBoolean("END_OF_TRAINING", endOfTraining);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        serviceStarted = savedInstanceState.getBoolean("SERVICE_STARTED");
+        trainingStarted = savedInstanceState.getBoolean("SERVICE_STARTED");
         endOfTraining = savedInstanceState.getBoolean("END_OF_TRAINING");
     }
 
@@ -285,6 +305,12 @@ public class TrainingActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void setButtonsEnabled(boolean enabled) {
+        startButton.setEnabled(enabled);
+        stopButton.setEnabled(enabled);
+        takePictureButton.setEnabled(enabled);
+    }
+
     private void getTrainingData(Intent intent) {
         locations  = intent.getParcelableArrayListExtra(TrainingConstants.POSITIONS);
         burnedCalories = intent.getIntExtra(TrainingConstants.BURNED_CALORIES, 0);
@@ -294,21 +320,53 @@ public class TrainingActivity extends Activity {
             positionsOK = true;
             saveTrainingToDatabase();
             //Starting activity to summup training
-            Intent newIntent = new Intent(this, TrainingSummation.class);
-            newIntent.putExtra(TrainingConstants.TRAINING, training);
-            startActivity(newIntent);
+            new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(training));
         }
+    }
+
+    private void resolveEventType(int eventType) {
+        if(!trainingStarted) {
+            switch (eventType) {
+                case GpsStatus.GPS_EVENT_STARTED:
+                    Toast.makeText(this, "Gps Searching", Toast.LENGTH_LONG).show();
+                    setButtonsEnabled(false);
+                    break;
+                case GpsStatus.GPS_EVENT_STOPPED:
+                    Toast.makeText(this, "Gps Stopped", Toast.LENGTH_SHORT).show();
+                    setButtonsEnabled(false);
+                    break;
+                case GpsStatus.GPS_EVENT_FIRST_FIX:
+                    Toast.makeText(this, "Gps Fixed", Toast.LENGTH_SHORT).show();
+
+                    break;
+            }
+        }
+    }
+
+    private void setLastLocation(Location location) {
+        if(lastLocation == null) {
+            lastLocation = location;
+            new LiveTrainingManager(TrainingActivity.this, currentUser)
+                    .execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(lastLocation.getLatitude(),lastLocation.getLongitude(), 0));
+            return;
+        }
+        lastLocation = location;
     }
 
     private class MyReciver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String data = intent.getStringExtra("GPS_INFO");
             //If data is null this means that we get tracked positions from GpsService
-            if(data != null) {
+            if(intent.hasExtra("GPS_INFO")) {
+                String data = intent.getStringExtra("GPS_INFO");
                 Toast.makeText(TrainingActivity.this, data, Toast.LENGTH_SHORT).show();
                 return;
+            } else if(intent.hasExtra("EVENT_TYPE")) {
+                int eventType = intent.getIntExtra("EVENT_TYPE", -1);
+                resolveEventType(eventType);
+            } else if(intent.hasExtra("LAST_LOCATION")) {
+                setLastLocation((Location) intent.getParcelableExtra("LAST_LOCATION"));
             }
             getTrainingData(intent);
         }

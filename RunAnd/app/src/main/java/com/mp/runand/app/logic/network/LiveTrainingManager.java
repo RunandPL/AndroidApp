@@ -8,9 +8,12 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.mp.runand.app.activities.Login;
+import com.mp.runand.app.activities.TrainingActivity;
+import com.mp.runand.app.activities.TrainingSummation;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.training.TrainingConstants;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -39,6 +42,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
     CurrentUser currentUser;
     ProgressDialog progressDialog;
 
+
     //internal variables
     boolean success;
     boolean isError = false;
@@ -50,7 +54,6 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
     public LiveTrainingManager(Context ctx, CurrentUser cu) {
         this.currentUser = cu;
         this.context = ctx;
-
         progressDialog = new ProgressDialog(ctx);
     }
 
@@ -118,11 +121,13 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
         super.onProgressUpdate(values);
         if (values[0]) {
             if (type.equals(Constants.beginLiveTraining)) {
-                //todo begin training
+                ((TrainingActivity) context).setButtonsEnabled(true);
             } else {
                 try {
-                    Training t = (Training)j.get(Constants.training);
-                    t=null;
+                    Training training = (Training)j.get(Constants.training);
+                    Intent newIntent = new Intent(context, TrainingSummation.class);
+                    newIntent.putExtra(TrainingConstants.TRAINING, training);
+                    context.startActivity(newIntent);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

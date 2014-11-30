@@ -97,7 +97,8 @@
         </activity>
         <activity
             android:name=".activities.TrainingSummation"
-            android:label="@string/title_activity_training_summation" >
+            android:label="@string/title_activity_training_summation"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 

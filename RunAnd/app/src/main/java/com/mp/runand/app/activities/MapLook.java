@@ -16,6 +16,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -23,6 +25,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.mp.runand.app.R;
@@ -32,7 +35,25 @@ import com.mp.runand.app.logic.training.TrainingImage;
 /**
  * Created by Sebastian on 2014-10-09.
  */
-public class MapLook extends Activity {
+public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener {
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        int position = -1;
+        for(int i = 0; i < imagesMarkers.size(); i++) {
+            if(imagesMarkers.get(i).equals(marker)) {
+                position = i;
+                break;
+            }
+        }
+        if(position == -1)
+            return false;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        ImageView imageView = new ImageView(this);
+        imageView.setImageBitmap(images.get(position).getImage());
+        builder.setView(imageView);
+        builder.create().show();
+        return true;
+    }
 
     private GoogleMap map = null;
     private LatLng[] positions = null;
@@ -40,6 +61,7 @@ public class MapLook extends Activity {
     private Marker startMarker = null;
     private Marker stopMarker = null;
     private ArrayList<TrainingImage> images = null;
+    private ArrayList<Marker> imagesMarkers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +72,7 @@ public class MapLook extends Activity {
         ArrayList<Location> positionList = intent.getParcelableArrayListExtra("POSITIONS");
         positions = getAsLatLngTable(positionList);
         images = intent.getParcelableArrayListExtra(TrainingConstants.IMAGES);
+        imagesMarkers = new ArrayList<Marker>();
         putTrackOnMap();
     }
 
@@ -90,6 +113,13 @@ public class MapLook extends Activity {
             markerOptions.position(stop);
             stopMarker = map.addMarker(markerOptions);
 
+            //Put images markers on map
+            for(int i = 0; i < images.size(); i++) {
+                markerOptions = new MarkerOptions();
+                LatLng latLng = new LatLng(images.get(i).getLocation().getLatitude(), images.get(i).getLocation().getLongitude());
+                markerOptions.position(latLng);
+                imagesMarkers.add(map.addMarker(markerOptions));
+            }
             //Zoom the camera to the beggining of route
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(start, 15.0f);
             map.animateCamera(cameraUpdate);
@@ -99,6 +129,7 @@ public class MapLook extends Activity {
     private void prepareMap() {
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        map.setOnMarkerClickListener(this);
     }
 
     @Override

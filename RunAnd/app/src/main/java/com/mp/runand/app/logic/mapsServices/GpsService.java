@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.widget.Toast;
 
+import com.mp.runand.app.activities.TrainingActivity;
 import com.mp.runand.app.logic.training.ActivityRecognitionIntentService;
 import com.mp.runand.app.logic.training.MessagesReader;
 import com.mp.runand.app.logic.training.TrainingConstants;
@@ -22,12 +24,12 @@ import com.mp.runand.app.logic.training.TrainingConstants;
 /**
  * Created by Sebastian on 2014-10-09.
  */
-public class GpsService extends Service {
+public class GpsService extends Service implements GpsStatus.Listener {
     public static final String ACTION = "GPS_ACTION";
     private final String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
     private static final int TWO_MINUTES = 1000 * 60 * 2;
     private static final int SUFFICIENT_ACCURACY = 100;
-    private ArrayList<Location> locations = new ArrayList<Location>();;
+    private ArrayList<Location> locations = new ArrayList<Location>();
     private LocationManager locationManager = null;
     private boolean startTracking = false;
     private Location currentBestLocation = null;
@@ -41,7 +43,8 @@ public class GpsService extends Service {
     private long delta;
     private long t1;
     private long t2;
-    private MyReciver myReciver;
+    private MyReceiver myReceiver;
+    private boolean trainingStarted = false;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -50,22 +53,39 @@ public class GpsService extends Service {
 
     @Override
     public void onDestroy() {
-        //Send tracked positions back to main activity
-        stopTime = System.currentTimeMillis();
-        sendTrainingData();
+        locationManager.removeGpsStatusListener(this);
         Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
         locationManager.removeUpdates(locationListener);
-        messagesReader.terminate();
         unregisterReciver();
+    }
+
+    private void startTraining() {
+        messagesReader = new MessagesReader(getBaseContext());
+        new Thread(messagesReader).start();
+        t1 = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
+        trainingStarted = true;
+        locations = new ArrayList<Location>();
+        length = 0;
+        burnedCalories = 0;
+        lastLocation = null;
+        Toast.makeText(this, "Training Started", Toast.LENGTH_SHORT).show();
+    }
+
+    private void stopTraining() {
+        stopTime = System.currentTimeMillis();
+        //Send tracked positions back to main activity
+        sendTrainingData();
+        messagesReader.terminate();
+        trainingStarted = false;
+        Toast.makeText(this, "Training Stopped", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        t1 = System.currentTimeMillis();
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
-        messagesReader = new MessagesReader(getBaseContext());
-        new Thread(messagesReader).start();
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.addGpsStatusListener(this);
         locationListener = new LocationListener() {
 
             @Override
@@ -91,12 +111,13 @@ public class GpsService extends Service {
                 if(location.getAccuracy() < SUFFICIENT_ACCURACY) {
                     if(!startTracking) {
                         sendData("Rozpoczęcie Namierzania");
-                        startTime = System.currentTimeMillis();
                     }
                     startTracking = true;
                 }
-                if(startTracking) {
+                if(startTracking && trainingStarted) {
                     updatePositionsList(location);
+                } else if(startTracking) {
+                    setKnownLocation(location);
                 }
                 //Pomiar czasu
                 t2 = System.currentTimeMillis();
@@ -113,16 +134,21 @@ public class GpsService extends Service {
         return START_NOT_STICKY;
     }
 
+    private void setKnownLocation(Location location) {
+        lastLocation = location;
+        sendLastLocation();
+    }
     private void registerReciver() {
-        myReciver = new MyReciver();
+        myReceiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ActivityRecognitionIntentService.NAME);
-        registerReceiver(myReciver, intentFilter);
+        intentFilter.addAction(TrainingActivity.NAME);
+        registerReceiver(myReceiver, intentFilter);
     }
 
     private void unregisterReciver() {
-        unregisterReceiver(myReciver);
-        myReciver = null;
+        unregisterReceiver(myReceiver);
+        myReceiver = null;
     }
 
     private void sendData(String data) {
@@ -149,12 +175,19 @@ public class GpsService extends Service {
         if(isBetterLocation(location)) {
             locations.add(location);
             if(lastLocation == null)
-                lastLocation = location;
+                setKnownLocation(location);
             else {
                 length += lastLocation.distanceTo(location);
-                lastLocation = location;
+                setKnownLocation(location);
             }
         }
+    }
+
+    private void sendLastLocation() {
+        Intent intent = new Intent();
+        intent.setAction(ACTION);
+        intent.putExtra("LAST_LOCATION", lastLocation);
+        sendBroadcast(intent);
     }
 
     private boolean isBetterLocation(Location location) {
@@ -188,14 +221,27 @@ public class GpsService extends Service {
 
     }
 
-    private class MyReciver extends BroadcastReceiver {
+    @Override
+    public void onGpsStatusChanged(int event) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION);
+        intent.putExtra("EVENT_TYPE", event);
+        sendBroadcast(intent);
+    }
+
+    private class MyReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             String data = intent.getStringExtra(TrainingConstants.ACTIVITY_TYPE);
             //If data is null this means that we get tracked positions from GpsService
-            if(data != null) {
-                Toast.makeText(GpsService.this, data, Toast.LENGTH_SHORT).show();
+            if(intent.hasExtra("SET_TRAINING")) {
+                String setTraining = intent.getStringExtra("SET_TRAINING");
+                if(setTraining.equals("START")) {
+                    startTraining();
+                } else if(setTraining.equals("STOP")) {
+                    stopTraining();
+                }
             }
         }
     }

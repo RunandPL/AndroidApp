@@ -211,7 +211,7 @@ public class JSONRequestBuilder {
     public static JSONObject buildStopLiveTrainingRequestAsJson(Training training) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put(Constants.type, Constants.stopLiveTaining)
+            jsonObject.put(Constants.type, Constants.stopLiveTraining)
                     .put(Constants.training, training);
         } catch (JSONException e) {
             e.printStackTrace();
