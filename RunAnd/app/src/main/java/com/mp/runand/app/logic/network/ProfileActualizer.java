@@ -165,6 +165,9 @@ public class ProfileActualizer extends AsyncTask<Void, String, String[]> {
             JSONObject response = new JSONObject(responseString);
             //JSONObject trainer = response.getJSONObject("msg");
             JSONArray trainer = (JSONArray) response.get("msg");
+            if(trainer.length()==0){
+                return "";
+            }
             return trainer.get(0).toString().split("\"")[3];
         }
     }
