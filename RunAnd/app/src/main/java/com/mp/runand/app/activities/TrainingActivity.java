@@ -42,7 +42,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Date;
 import java.util.ArrayList;
 
@@ -95,6 +97,15 @@ public class TrainingActivity extends Activity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
         }
+    }
+
+    @InjectView(R.id.debugMap)
+    Button debugMap;
+
+    @OnClick(R.id.debugMap)
+    void debugMapOnClick(Button button) {
+        Intent intent = new Intent(this, MapDebug.class);
+        startActivity(intent);
     }
 
     private boolean endOfTraining = false;
@@ -190,10 +201,39 @@ public class TrainingActivity extends Activity {
             for(int i = 0; i < images.size(); i++) {
                 dataBaseHelper.addImage(trainingID, images.get(i));
             }
+            saveImageToFile(images.get(0).getImage());
             Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void saveImageToFile(String path) {
+        String base = com.mp.runand.app.logic.database.DatabaseUtils.ImageToBase64(path.substring(7));
+        FileOutputStream fos = null;
+        PrintWriter pw = null;
+        try {
+            File file  = new File(Environment.getExternalStorageDirectory() + "//base64.txt");
+            if(!file.exists())
+                file.createNewFile();
+            fos = new FileOutputStream(file);
+            pw = new PrintWriter(Environment.getExternalStorageDirectory() + "//base64.txt");
+            pw.write(base);
+            //pw.print(base);
+            pw.flush();
+            fos.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fos != null)
+                try {
+                    pw.close();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+        }
+    }
     @Override
     protected void onStart() {
         super.onStart();

@@ -131,9 +131,9 @@ public class GpsService extends Service implements GpsStatus.Listener {
                 t2 = System.currentTimeMillis();
                 delta += t2 - t1;
                 t1 = t2;
-                if(delta == 20000) {
+                if(delta > 3000) {
                     delta = 0;
-                    toJestTaFunkcjaKtoraChcialesZebymZaimplementowalCoSieWykonujeCo20SekundMamNadziejeZeChodziloCiOCosTakiegoJakNieToNapiszIDajMiZnacToWtedyCosZmienieChociazZPoczatkuPewnieNieBedeWiedzialCoAleSieCosZmieniRunAndBrunieckiDupaKamieniKupaNieChceMiSieJuzTejInzynierkiPisacIOgolnieJestemZmeczonyFunctionHaHaHaHaHaHa();
+                    twentySecondsFunction();
                 }
             }
         };
@@ -225,8 +225,11 @@ public class GpsService extends Service implements GpsStatus.Listener {
         return false;
     }
 
-    private void toJestTaFunkcjaKtoraChcialesZebymZaimplementowalCoSieWykonujeCo20SekundMamNadziejeZeChodziloCiOCosTakiegoJakNieToNapiszIDajMiZnacToWtedyCosZmienieChociazZPoczatkuPewnieNieBedeWiedzialCoAleSieCosZmieniRunAndBrunieckiDupaKamieniKupaNieChceMiSieJuzTejInzynierkiPisacIOgolnieJestemZmeczonyFunctionHaHaHaHaHaHa() {
-        new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation));
+    private void twentySecondsFunction() {
+        if(lastLocation != null && currentUser != null) {
+            new CurrentLocationSender(this, currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation));
+            Toast.makeText(this, "20 sekund", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

@@ -20,6 +20,8 @@ public class Training implements Parcelable{
     private Date date;
     private double pace;
 
+    public Training() {}
+
     public Training(String userEmail, long lengthTime, Track track, int burnedCalories, double speedRate) {
         this.id = -1;
         this.userEmail = userEmail;

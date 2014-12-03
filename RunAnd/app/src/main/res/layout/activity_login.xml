@@ -76,7 +76,7 @@
         android:layout_alignBottom="@+id/btn_sign_in"
         android:layout_alignRight="@+id/password"
         android:layout_alignEnd="@+id/password"
-        android:layout_toEndOf="@+id/btn_sign_in"
+        android:layout_toRightOf="@id/btn_sign_in"
         android:layout_alignTop="@+id/btn_sign_in" />
 
     <com.google.android.gms.common.SignInButton
@@ -84,6 +84,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toStartOf="@+id/password"
+        android:layout_toLeftOf="@id/password"
         android:layout_below="@+id/textViewPassword"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
