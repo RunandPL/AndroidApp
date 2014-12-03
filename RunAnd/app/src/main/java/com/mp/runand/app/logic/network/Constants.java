@@ -1,6 +1,7 @@
 package com.mp.runand.app.logic.network;
 
 /**
+ * class which contains all constants for networking
  * Created by Mateusz on 2014-10-29.
  */
 public class Constants {
@@ -53,5 +54,4 @@ public class Constants {
     public static String latitude = "x";
     public static String longitude = "y";
     public static String altitude = "z";
-
 }

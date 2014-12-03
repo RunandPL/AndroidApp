@@ -5,7 +5,9 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.mp.runand.app.logic.entities.CurrentUser;
+import com.mp.runand.app.logic.training.MessagesList;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -14,6 +16,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -90,6 +94,17 @@ public class CurrentLocationSender extends AsyncTask<JSONObject, Void, Boolean> 
 
         HttpResponse serverResponse = httpClient.execute(request);
         if (serverResponse.getStatusLine().getStatusCode() == 200) {
+
+            HttpEntity entity = serverResponse.getEntity();
+            String responseString = EntityUtils.toString(entity, "UTF-8");
+            JSONObject response = new JSONObject(responseString);
+            JSONObject msg = (JSONObject) response.get("msg");
+            JSONArray msgs = (JSONArray) msg.get("messages");
+            int length = msgs.length();
+            if(length>0) {
+                JSONObject toRead = msgs.getJSONObject(length - 1);
+                MessagesList.getInstance().putMessages(toRead.getString("msg"));
+            }
             return true;
         } else if (serverResponse.getStatusLine().getStatusCode() == 401) {
             tokenFailure = true;

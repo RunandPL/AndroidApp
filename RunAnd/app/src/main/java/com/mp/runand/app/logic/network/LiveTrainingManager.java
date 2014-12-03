@@ -15,6 +15,7 @@ import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Training;
 import com.mp.runand.app.logic.training.TrainingConstants;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -23,6 +24,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,7 +63,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
     protected JSONObject doInBackground(JSONObject... jsonObjects) {
         try {
             //only for debugging
-            //android.os.Debug.waitForDebugger();
+            android.os.Debug.waitForDebugger();
             type = jsonObjects[0].getString("type");
             j=jsonObjects[0];
             success = doAction(jsonObjects[0]);
@@ -121,7 +123,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
         super.onProgressUpdate(values);
         if (values[0]) {
             if (type.equals(Constants.beginLiveTraining)) {
-                ((TrainingActivity) context).setButtonsEnabled(true);
+                //((TrainingActivity) context).setButtonsEnabled(true);
             } else {
                 try {
                     Training training = (Training)j.get(Constants.training);
@@ -177,6 +179,9 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
             error = "zaloguj się ponownie, twoj token autoryzacyjny wygasł";
             return false;
         } else {
+            HttpEntity entity = serverResponse.getEntity();
+            String responseString = EntityUtils.toString(entity, "UTF-8");
+            JSONObject response = new JSONObject(responseString);
             return false;
         }
     }

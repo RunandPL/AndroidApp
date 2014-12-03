@@ -19,12 +19,7 @@ public class MessagesList {
 
     private MessagesList() {
         this.messages = new ArrayList<String>();
-        //Only to debug
-        for(int i = 0; i < 3; i++) {
-            messages.add("Wiadomość " + i);
-        }
-        messages.add("Sebastian dobrze ci idzie");
-        lastMessage = "";
+        lastMessage="";
     }
 
     public boolean isEmpty() {
