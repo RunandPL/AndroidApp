@@ -9,28 +9,28 @@ import android.os.Parcelable;
  * Created by Sebastian on 2014-11-29.
  */
 public class TrainingImage implements Parcelable {
-    private Bitmap image;
+    private String image;
     private Location location;
 
     public TrainingImage() {
 
     }
 
-    public TrainingImage(Location location, Bitmap image) {
+    public TrainingImage(Location location, String image) {
         this.location = location;
         this.image = image;
     }
 
     public TrainingImage(Parcel parcel) {
-        this.image = parcel.readParcelable(Bitmap.class.getClassLoader());
+        this.image = parcel.readString();
         this.location = parcel.readParcelable(Location.class.getClassLoader());
     }
 
-    public Bitmap getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(Bitmap image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -49,7 +49,7 @@ public class TrainingImage implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeParcelable(image, 0);
+        parcel.writeString(image);
         parcel.writeParcelable(location, 0);
     }
 

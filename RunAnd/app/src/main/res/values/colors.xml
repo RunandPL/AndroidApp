@@ -2,4 +2,6 @@
 
     <color name="black_overlay">#66000000</color>
     <color name="notlogged">#d9d90603</color>
+    <color name="titleBackgroundColor">#3232CD</color>
+    <color name="titleTextColor">#FFFF00</color>
 </resources>

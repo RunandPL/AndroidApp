@@ -64,7 +64,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_IMAGE_TABLE = "CREATE TABLE " + DatabaseConstants.IMAGE_TABLE_NAME + "("
             + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.IMAGE_TABLE_TRAINING_ID + " INTEGER NOT NULL, "
-            + DatabaseConstants.IMAGE_TABLE_IMAGE + " BLOB NOT NULL, " + DatabaseConstants.IMAGE_TABLE_LOCATION + " TEXT NOT NULL)";
+            + DatabaseConstants.IMAGE_TABLE_IMAGE + " TEXT NOT NULL, " + DatabaseConstants.IMAGE_TABLE_LOCATION + " TEXT NOT NULL)";
 
     public static DataBaseHelper getInstance(Context context) {
         if (instance == null) {
@@ -331,10 +331,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             SQLiteDatabase database = getWritableDatabase();
             ContentValues contentValues = new ContentValues();
             contentValues.put(DatabaseConstants.IMAGE_TABLE_TRAINING_ID, trainingID);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            trainingImage.getImage().compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            contentValues.put(DatabaseConstants.IMAGE_TABLE_IMAGE, stream.toByteArray());
-        contentValues.put(DatabaseConstants.IMAGE_TABLE_LOCATION, DatabaseUtils.areaToString(trainingImage.getLocation()));
+            contentValues.put(DatabaseConstants.IMAGE_TABLE_IMAGE, trainingImage.getImage());
+            contentValues.put(DatabaseConstants.IMAGE_TABLE_LOCATION, DatabaseUtils.areaToString(trainingImage.getLocation()));
             database.insert(DatabaseConstants.IMAGE_TABLE_NAME, null, contentValues);
             database.close();
     }
@@ -368,11 +366,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      * @return Retrieved Bitmap
      */
     private TrainingImage getTrainingImageFromCursor(Cursor cursor) {
-        byte[] imageByteArray = cursor.getBlob(cursor.getColumnIndex(DatabaseConstants.IMAGE_TABLE_IMAGE));
         TrainingImage trainingImage = new TrainingImage();
         trainingImage.setLocation(DatabaseUtils.stringToArea(cursor.getString(cursor.getColumnIndex(DatabaseConstants.IMAGE_TABLE_LOCATION))));
-        ByteArrayInputStream bais = new ByteArrayInputStream(imageByteArray);
-        trainingImage.setImage(BitmapFactory.decodeStream(bais));
+        trainingImage.setImage(cursor.getString(cursor.getColumnIndex(DatabaseConstants.IMAGE_TABLE_IMAGE)));
         return trainingImage;
     }
 

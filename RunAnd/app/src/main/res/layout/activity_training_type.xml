@@ -6,7 +6,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.mp.runand.app.activities.TrainingTypeActivity">
+    tools:context="com.mp.runand.app.activities.TrainingTypeActivity"
+    android:background="#0099cc">
 
 
     <Button
@@ -23,7 +24,9 @@
         android:layout_centerHorizontal="true"
         android:layout_centerInParent="true"
         android:id="@+id/routeTrainingButton"
-        android:text="@string/routeTraining"/>
+        android:text="@string/routeTraining"
+        android:background="@drawable/layer_button_road"
+        style="@style/ButtonText"/>
 
     <Button
         android:layout_width="wrap_content"

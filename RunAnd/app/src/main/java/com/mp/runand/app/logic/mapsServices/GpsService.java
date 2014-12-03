@@ -17,6 +17,10 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 import com.mp.runand.app.activities.TrainingActivity;
+import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.entities.CurrentUser;
+import com.mp.runand.app.logic.network.CurrentLocationSender;
+import com.mp.runand.app.logic.network.JSONRequestBuilder;
 import com.mp.runand.app.logic.training.ActivityRecognitionIntentService;
 import com.mp.runand.app.logic.training.MessagesReader;
 import com.mp.runand.app.logic.training.TrainingConstants;
@@ -45,6 +49,8 @@ public class GpsService extends Service implements GpsStatus.Listener {
     private long t2;
     private MyReceiver myReceiver;
     private boolean trainingStarted = false;
+    private CurrentUser currentUser;
+    private DataBaseHelper databaseHelper;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -69,6 +75,8 @@ public class GpsService extends Service implements GpsStatus.Listener {
         length = 0;
         burnedCalories = 0;
         lastLocation = null;
+        databaseHelper = DataBaseHelper.getInstance(this);
+        currentUser = databaseHelper.getCurrentUser();
         Toast.makeText(this, "Training Started", Toast.LENGTH_SHORT).show();
     }
 
@@ -218,7 +226,7 @@ public class GpsService extends Service implements GpsStatus.Listener {
     }
 
     private void toJestTaFunkcjaKtoraChcialesZebymZaimplementowalCoSieWykonujeCo20SekundMamNadziejeZeChodziloCiOCosTakiegoJakNieToNapiszIDajMiZnacToWtedyCosZmienieChociazZPoczatkuPewnieNieBedeWiedzialCoAleSieCosZmieniRunAndBrunieckiDupaKamieniKupaNieChceMiSieJuzTejInzynierkiPisacIOgolnieJestemZmeczonyFunctionHaHaHaHaHaHa() {
-
+        new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation));
     }
 
     @Override

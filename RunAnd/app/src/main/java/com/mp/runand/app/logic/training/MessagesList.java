@@ -9,6 +9,7 @@ import java.util.List;
 public class MessagesList {
     private List<String> messages;
     private static MessagesList instance;
+    private String lastMessage;
 
     public static MessagesList getInstance() {
         if(instance == null)
@@ -23,6 +24,7 @@ public class MessagesList {
             messages.add("Wiadomość " + i);
         }
         messages.add("Sebastian dobrze ci idzie");
+        lastMessage = "";
     }
 
     public boolean isEmpty() {
@@ -34,7 +36,8 @@ public class MessagesList {
      * @param message Message to be put in list
      */
     public void putMessages(String message) {
-        messages.add(message);
+        if(!message.equals(lastMessage))
+            messages.add(message);
     }
 
     /**

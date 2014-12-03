@@ -6,29 +6,46 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.mp.runand.app.activities.MainActivity">
-
-    <Button
+    tools:context="com.mp.runand.app.activities.MainActivity"
+    android:background="#0099cc">
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/training"
-        android:id="@+id/treningButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="69dp" />
-
-    <Button
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:id="@+id/logoImageView"
+        android:src="@drawable/logo_runand_white"/>
+    
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/showTrainingHistory"
-        android:id="@+id/showHistoryButton"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/logoImageView"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="tmp"
-        android:id="@+id/tmp"
-        />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/training"
+            android:id="@+id/treningButton"
+            android:layout_marginTop="60dip"
+            android:layout_marginBottom="60dip"
+            android:background="@drawable/layout_training_button"
+            style="@style/ButtonText"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/showTrainingHistory"
+            android:id="@+id/showHistoryButton"
+            android:layout_marginTop="60dip"
+            android:layout_marginBottom="60dip"
+            android:background="@drawable/layer_button_history"
+            style="@style/ButtonText"/>
+
+    </LinearLayout>
+
+
 
 </RelativeLayout>

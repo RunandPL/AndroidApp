@@ -23,4 +23,11 @@
 
     <style name="ButtonBarButton" />
 
+    <style name="RunAndBar" parent="android:Theme">
+    </style>
+
+    <style name="WindowTitleBackground">
+        <item name="android:background">@color/titleBackgroundColor</item>
+    </style>
+
 </resources>

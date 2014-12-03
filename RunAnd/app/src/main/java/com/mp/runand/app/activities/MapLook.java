@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by Sebastian on 2014-10-09.
@@ -49,7 +50,8 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
             return false;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         ImageView imageView = new ImageView(this);
-        imageView.setImageBitmap(images.get(position).getImage());
+        Picasso.with(this).load(images.get(position).getImage()).into(imageView);
+        Toast.makeText(this, images.get(position).getImage(), Toast.LENGTH_SHORT).show();
         builder.setView(imageView);
         builder.create().show();
         return true;

@@ -11,8 +11,11 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -20,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.mp.runand.app.R;
+import com.mp.runand.app.logic.NameBuilder;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.Track;
@@ -86,12 +90,12 @@ public class TrainingActivity extends Activity {
     void takePictuteButtonOnClick(Button button) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(intent.resolveActivity(getPackageManager()) != null) {
+            Uri uri = Uri.fromFile(NameBuilder.createImageFile(Environment.getExternalStorageDirectory(), currentUser.getUserName()));
+            lastPicturePath = uri.toString();
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
         }
     }
-
-    @InjectView(R.id.imageViewTraining)
-    ImageView imageView;
 
     private boolean endOfTraining = false;
     private boolean trainingStarted = false;
@@ -208,14 +212,10 @@ public class TrainingActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = intent.getExtras();
             TrainingImage trainingImage = new TrainingImage();
-            //geoTagPicture(trainingImage);
-            //getImageFromFile(trainingImage);
             trainingImage.setLocation(lastLocation);
-            trainingImage.setImage((Bitmap) extras.get("data"));
+            trainingImage.setImage(lastPicturePath);
             images.add(trainingImage);
-            //imagePaths.add(lastPicturePath);
             lastPicturePath = "";
         }
     }
@@ -233,7 +233,7 @@ public class TrainingActivity extends Activity {
             while ((current = bis.read()) != -1) {
                 baf.append((byte) current);
             }
-            trainingImage.setImage(BitmapFactory.decodeByteArray(baf.toByteArray(),0, baf.length()));
+            //trainingImage.setImage(BitmapFactory.decodeByteArray(baf.toByteArray(),0, baf.length()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -274,13 +274,13 @@ public class TrainingActivity extends Activity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         savedInstanceState.putBoolean("SERVICE_STARTED", trainingStarted);
         savedInstanceState.putBoolean("END_OF_TRAINING", endOfTraining);
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         trainingStarted = savedInstanceState.getBoolean("SERVICE_STARTED");
         endOfTraining = savedInstanceState.getBoolean("END_OF_TRAINING");
     }

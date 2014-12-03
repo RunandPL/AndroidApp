@@ -6,35 +6,40 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.mp.runand.app.activities.TrainingActivity">
+    tools:context="com.mp.runand.app.activities.TrainingActivity"
+    android:background="#0099cc">
 
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/startTraining"
-        android:id="@+id/startTrainingButton"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/stopTraining"
-        android:id="@+id/stopTrainingButton"
-        android:layout_centerInParent="true"
-        android:layout_centerHorizontal="true"/>
-    <ImageView
-        android:layout_width="400dp"
-        android:layout_height="150dp"
-        android:layout_below="@id/stopTrainingButton"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/imageViewTraining"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/takePicture"
-        android:id="@+id/takePictureButton"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerInParent="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startTraining"
+            android:id="@+id/startTrainingButton"
+            android:background="@drawable/layer_button_start"
+            style="@style/ButtonText"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/stopTraining"
+            android:id="@+id/stopTrainingButton"
+            android:background="@drawable/layer_button_stop"
+            style="@style/ButtonText"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/takePicture"
+            android:id="@+id/takePictureButton"
+            android:background="@drawable/layer_button_photo"
+            style="@style/ButtonText"/>
+        </LinearLayout>
+
+
 </RelativeLayout>

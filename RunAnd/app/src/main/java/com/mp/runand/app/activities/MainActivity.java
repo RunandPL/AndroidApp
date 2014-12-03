@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.database.DataBaseHelper;
@@ -44,51 +46,18 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    @InjectView(R.id.tmp)
-            Button tmp;
-
     CurrentUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //boolean cos = requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.activity_main);
+        //getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar_layout);
         ButterKnife.inject(this);
         //do not touch
         currentUser = DataBaseHelper.getInstance(this).getCurrentUser();
     }
-
-    @OnClick(R.id.tmp)
-    public void test(){
-        Location area = new Location("none");
-        area.setLatitude(12.0);
-        area.setLongitude(45.0);
-        Location area2 = new Location("none");
-        area2.setLatitude(14.0);
-        area2.setLongitude(47.0);
-
-        ArrayList<Location> ll = new ArrayList<Location>();
-        ll.add(area);
-        ll.add(area2);
-        Track t = new Track(new Date(System.currentTimeMillis()),ll,11,11,11,area);
-        Training tt = new Training("mail",345,t,23,23);
-//
-//        JSONObject trasa = JSONRequestBuilder.buildSendTrackRequestAsJson(t);
-//        JSONObject training = JSONRequestBuilder.buildSendTrainingRequestAsJson(tt);
-//
-//        //how to send training
-//        //new TrainingSender(this, currentUser).execute(tt);
-//        //how to send track
-//        new TrackSender(this,currentUser).execute(t);
-//
-//        t=null;
-
-        new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(10,10,10));
-        new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area));
-        new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area2));
-        new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(tt));
-    }
-
 
     @OnClick(R.id.treningButton)
     public void beginTrening() {
@@ -157,6 +126,8 @@ public class MainActivity extends Activity {
             setTitle(getText(R.string.not_logged));
         } else {
             setTitle(getText(R.string.user) + currentUser.getUserName());
+            //TextView textView = (TextView) findViewById(R.id.titleBar);
+            //textView.setText(getText(R.string.user) + currentUser.getUserName());
         }
     }
 
