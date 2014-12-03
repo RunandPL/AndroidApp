@@ -123,7 +123,7 @@ public class LiveTrainingManager extends AsyncTask<JSONObject, Boolean, JSONObje
         super.onProgressUpdate(values);
         if (values[0]) {
             if (type.equals(Constants.beginLiveTraining)) {
-                //((TrainingActivity) context).setButtonsEnabled(true);
+                ((TrainingActivity) context).setButtonsEnabled(true);
             } else {
                 try {
                     Training training = (Training)j.get(Constants.training);
