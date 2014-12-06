@@ -72,6 +72,7 @@ public class DatabaseUtils {
     }
 
     public static String ImageToBase64(String imagePath) {
+        imagePath = imagePath.substring(7);
         FileInputStream fileInputStream = null;
         try {
             File imageFile = new File(imagePath);
@@ -94,7 +95,18 @@ public class DatabaseUtils {
         return "";
     }
 
-    public static Bitmap StringToImage(String imageDataString) {
+    public static ArrayList<Bitmap> stringToImages(String imagesInBase64) {
+        ArrayList<Bitmap> result = new ArrayList<Bitmap>();
+        if(imagesInBase64.equals(""))
+            return result;
+        String strings[] = imagesInBase64.split(":");
+        for(int i = 0; i < strings.length; i++) {
+            result.add(stringToImage(strings[i]));
+        }
+        return result;
+    }
+
+    public static Bitmap stringToImage(String imageDataString) {
         byte[] imageData = Base64.decode(imageDataString, 0);
         return BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
     }

@@ -7,7 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.media.Image;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -60,11 +62,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             + "(" + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.TRAIN_TABLE_USER_EMAIL + " TEXT NOT NULL, "
             + DatabaseConstants.TRAIN_TABLE_LENGTH_TIME + " INTEGER NOT NULL, " + DatabaseConstants.TRAIN_TABLE_TRACK_ID + " INTEGER NOT NULL, "
             + DatabaseConstants.TRAIN_TABLE_BURNED_CALORIES + " INTEGER NOT NULL, " + DatabaseConstants.TRAIN_TABLE_SPEED_RATE + " FLOAT NOT NULL,"
-            + DatabaseConstants.TRAIN_TABLE_PACE + " DOUBLE NOT NULL, " + DatabaseConstants.TRAIN_TABLE_DATE + " DATE NOT NULL)";
-
-    private static final String CREATE_IMAGE_TABLE = "CREATE TABLE " + DatabaseConstants.IMAGE_TABLE_NAME + "("
-            + DatabaseConstants.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DatabaseConstants.IMAGE_TABLE_TRAINING_ID + " INTEGER NOT NULL, "
-            + DatabaseConstants.IMAGE_TABLE_IMAGE + " TEXT NOT NULL, " + DatabaseConstants.IMAGE_TABLE_LOCATION + " TEXT NOT NULL)";
+            + DatabaseConstants.TRAIN_TABLE_PACE + " DOUBLE NOT NULL, " + DatabaseConstants.TRAIN_TABLE_DATE + " DATE NOT NULL, "
+            + DatabaseConstants.TRAIN_TABLE_IMAGES + " TEXT NOT NULL, " + DatabaseConstants.TRAIN_TABLE_IMAGES_POSITION + " TEXT NOT NULL)";
 
     public static DataBaseHelper getInstance(Context context) {
         if (instance == null) {
@@ -86,13 +85,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         dataBase.execSQL(CREATE_TRACKS_TABLE);
         dataBase.execSQL(CREATE_USER_TRAINING_TABLE);
         dataBase.execSQL(CREATE_TRAINING_TABLE);
-        dataBase.execSQL(CREATE_IMAGE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase dataBase, int oldVersion, int newVersion) {
         //Right now, I think we do not need this so I will not do anything here
-        context.deleteDatabase(DatabaseConstants.DATA_BASE_NAME);
+        //context.deleteDatabase(DatabaseConstants.DATA_BASE_NAME);
         onCreate(dataBase);
     }
 
@@ -106,7 +104,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase dataBase = getWritableDatabase();
 
         //only one current user can be stored in db
-        dataBase.execSQL("DROP TABLE IF EXISTS " + DatabaseConstants.CURRENT_USER_TABLE_NAME);
+        //taBase.execSQL("DROP TABLE IF EXISTS " + DatabaseConstants.CURRENT_USER_TABLE_NAME);
         dataBase.execSQL(CREATE_CURRENT_USER_TABLE);
 
         ContentValues contentValues = new ContentValues();
@@ -275,19 +273,21 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         return result;
     } */
-    public long addTraining(Training training) {
+    public long addTraining(Training training, List<TrainingImage> images) {
         //Writing track to database
         int trackID = addTrack(training.getTrack());
-        return saveTraining(training, trackID);
+        return saveTraining(training, trackID, images);
     }
 
-    public long addTrainingOnExistingTrack(Training training, int trackID) {
-        return saveTraining(training, trackID);
+    public long addTrainingOnExistingTrack(Training training, int trackID, List<TrainingImage> images) {
+        return saveTraining(training, trackID, images);
     }
 
-    private long saveTraining(Training training, int trackID) {
+    private long saveTraining(Training training, int trackID, List<TrainingImage> images) {
         SQLiteDatabase database = getWritableDatabase();
 
+        String imagesInBase64 = convertImagesListToBase64(images);
+        String imagesPositions = convertImagesPositionsToString(images);
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseConstants.TRAIN_TABLE_BURNED_CALORIES, training.getBurnedCalories());
         contentValues.put(DatabaseConstants.TRAIN_TABLE_LENGTH_TIME, training.getLengthTime());
@@ -296,10 +296,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(DatabaseConstants.TRAIN_TABLE_TRACK_ID, trackID);
         contentValues.put(DatabaseConstants.TRAIN_TABLE_DATE, training.getDate().toString());
         contentValues.put(DatabaseConstants.TRAIN_TABLE_PACE, training.getPace());
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_IMAGES, imagesInBase64);
+        contentValues.put(DatabaseConstants.TRAIN_TABLE_IMAGES_POSITION, imagesPositions);
 
         long trainingID = database.insert(DatabaseConstants.TRAIN_TABLE_NAME, null, contentValues);
         database.close();
         return  trainingID;
+    }
+
+    private String convertImagesPositionsToString(List<TrainingImage> images) {
+        ArrayList<Location> locations = new ArrayList<Location>();
+        for(int i = 0; i < images.size(); i++) {
+            locations.add(images.get(i).getLocation());
+        }
+        return DatabaseUtils.routeToString(locations);
     }
 
     public List<Training> getUserTrainings(String emailAddress) {
@@ -327,49 +337,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return trainings;
     }
 
-    public void addImage(long trainingID, TrainingImage trainingImage){
-            SQLiteDatabase database = getWritableDatabase();
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(DatabaseConstants.IMAGE_TABLE_TRAINING_ID, trainingID);
-            contentValues.put(DatabaseConstants.IMAGE_TABLE_IMAGE, trainingImage.getImage());
-            contentValues.put(DatabaseConstants.IMAGE_TABLE_LOCATION, DatabaseUtils.areaToString(trainingImage.getLocation()));
-            database.insert(DatabaseConstants.IMAGE_TABLE_NAME, null, contentValues);
-            database.close();
-    }
-
-    public TrainingImage getImage(int imageID) {
-        String query = "SELECT * FROM " + DatabaseConstants.IMAGE_TABLE_NAME + " WHERE " + DatabaseConstants.ID + " = " + imageID;
-        SQLiteDatabase database = getReadableDatabase();
-        Cursor cursor = database.rawQuery(query, null);
-        if(!cursor.moveToFirst())
-            return null;
-        return getTrainingImageFromCursor(cursor);
-    }
-
     public ArrayList<TrainingImage> getImagesForTraining(int trainingID) {
-        String query = "SELECT * FROM " + DatabaseConstants.IMAGE_TABLE_NAME + " WHERE " + DatabaseConstants.IMAGE_TABLE_TRAINING_ID + " = " + trainingID;
+        String query = "SELECT * FROM " + DatabaseConstants.TRAIN_TABLE_NAME + " WHERE " + DatabaseConstants.ID + " = " + trainingID;
         ArrayList<TrainingImage> result = new ArrayList<TrainingImage>();
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.rawQuery(query, null);
         //If cursor is empty return empty List
-        if(!cursor.moveToFirst())
+        if(!cursor.moveToFirst()) {
+            Log.e("DBH", "Pusty cursor");
             return result;
-        do {
-            result.add(getTrainingImageFromCursor(cursor));
-        } while(cursor.moveToNext());
+        }
+        String imagesInBase64 = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_IMAGES));
+        String imagesLocations = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_IMAGES_POSITION));
+        ArrayList<Location> locations = DatabaseUtils.stringToRoute(imagesLocations);
+        ArrayList<Bitmap> bitmaps = DatabaseUtils.stringToImages(imagesInBase64);
+        for(int i = 0; i < bitmaps.size(); i++) {
+            result.add(new TrainingImage(locations.get(i), "", bitmaps.get(i)));
+        }
+        database.close();
         return result;
-    }
-
-    /**
-     * Retrieve Bitmap from given cursor
-     * @param cursor to retrieve image from
-     * @return Retrieved Bitmap
-     */
-    private TrainingImage getTrainingImageFromCursor(Cursor cursor) {
-        TrainingImage trainingImage = new TrainingImage();
-        trainingImage.setLocation(DatabaseUtils.stringToArea(cursor.getString(cursor.getColumnIndex(DatabaseConstants.IMAGE_TABLE_LOCATION))));
-        trainingImage.setImage(cursor.getString(cursor.getColumnIndex(DatabaseConstants.IMAGE_TABLE_IMAGE)));
-        return trainingImage;
     }
 
     /**
@@ -384,6 +370,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         database.insert(DatabaseConstants.USER_TRAINING_TABLE_NAME, null, contentValues);
         database.close();
+    }
+
+    /**
+     * Converts all images in list to one String
+     * @param images to convert
+     * @return String containing converted images
+     */
+    private String convertImagesListToBase64(List<TrainingImage> images) {
+        StringBuilder builder = new StringBuilder();
+        if(images.isEmpty())
+            return "";
+        builder.append(DatabaseUtils.ImageToBase64(images.get(0).getImage()));
+        for(int i = 1; i < images.size(); i++) {
+            builder.append(":");
+            builder.append(DatabaseUtils.ImageToBase64(images.get(i).getImage()));
+        }
+        return builder.toString();
     }
 
     /**

@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.mp.runand.app.R;
+import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
 import com.squareup.picasso.Picasso;
@@ -50,7 +51,10 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
             return false;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         ImageView imageView = new ImageView(this);
-        Picasso.with(this).load(images.get(position).getImage()).into(imageView);
+        if(!images.get(position).getImage().equals(""))
+            Picasso.with(this).load(images.get(position).getImage()).into(imageView);
+        else
+            imageView.setImageBitmap(images.get(position).getImageInBMP());
         Toast.makeText(this, images.get(position).getImage(), Toast.LENGTH_SHORT).show();
         builder.setView(imageView);
         builder.create().show();
@@ -73,7 +77,8 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
         Intent intent = getIntent();
         ArrayList<Location> positionList = intent.getParcelableArrayListExtra("POSITIONS");
         positions = getAsLatLngTable(positionList);
-        images = intent.getParcelableArrayListExtra(TrainingConstants.IMAGES);
+        int trainingID = intent.getIntExtra("TRAINING_ID", -1);
+        images = DataBaseHelper.getInstance(this).getImagesForTraining(trainingID);
         imagesMarkers = new ArrayList<Marker>();
         putTrackOnMap();
     }

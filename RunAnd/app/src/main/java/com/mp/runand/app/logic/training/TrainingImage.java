@@ -11,19 +11,30 @@ import android.os.Parcelable;
 public class TrainingImage implements Parcelable {
     private String image;
     private Location location;
+    private Bitmap imageInBMP;
 
     public TrainingImage() {
 
     }
 
-    public TrainingImage(Location location, String image) {
+    public TrainingImage(Location location, String image, Bitmap imageInBMP) {
         this.location = location;
         this.image = image;
+        this.imageInBMP = imageInBMP;
     }
 
     public TrainingImage(Parcel parcel) {
         this.image = parcel.readString();
         this.location = parcel.readParcelable(Location.class.getClassLoader());
+        this.imageInBMP = parcel.readParcelable(Bitmap.class.getClassLoader());
+    }
+
+    public Bitmap getImageInBMP() {
+        return imageInBMP;
+    }
+
+    public void setImageInBMP(Bitmap imageInBMP) {
+        this.imageInBMP = imageInBMP;
     }
 
     public String getImage() {
@@ -51,6 +62,7 @@ public class TrainingImage implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(image);
         parcel.writeParcelable(location, 0);
+        parcel.writeParcelable(imageInBMP, 0);
     }
 
     public static final Creator<TrainingImage> CREATOR = new Creator<TrainingImage>() {

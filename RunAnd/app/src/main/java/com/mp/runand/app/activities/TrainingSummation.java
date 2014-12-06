@@ -46,7 +46,8 @@ public class TrainingSummation extends Activity {
     void trackImageOnClick(ImageView imageView) {
         Intent intent = new Intent(this, MapLook.class);
         ArrayList<TrainingImage> images = databaseHelper.getImagesForTraining(training.getId());
-        intent.putExtra(TrainingConstants.IMAGES, images);
+        intent.putExtra("TRAINING_ID", training.getId());
+        //intent.putExtra(TrainingConstants.IMAGES, images);
         intent.putExtra("POSITIONS", training.getTrack().getRoute());
         startActivity(intent);
     }
@@ -64,7 +65,7 @@ public class TrainingSummation extends Activity {
         databaseHelper = DataBaseHelper.getInstance(this);
 
         setValuesOnViews();
-        Picasso.with(this).load(createImageUrl()).into(trackImage);
+        Picasso.with(this).load(createImageUrl()).resize(trackImage.getMaxWidth(), trackImage.getMaxHeight()).into(trackImage);
     }
 
     private void setValuesOnViews() {

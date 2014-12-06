@@ -205,7 +205,6 @@ public class TrainingActivity extends Activity {
     private void saveTrainingToDatabase() {
         if(positionsOK) {
             DataBaseHelper dataBaseHelper = DataBaseHelper.getInstance(getBaseContext());
-            CurrentUser currentUser = dataBaseHelper.getCurrentUser();
             Location area = new Location("none");
             area.setLatitude(12.0);
             area.setLongitude(45.0);
@@ -213,15 +212,13 @@ public class TrainingActivity extends Activity {
             if(!isRouteTraining) {
                 Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
                 training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
-                trainingID = dataBaseHelper.addTraining(training);
+                trainingID = dataBaseHelper.addTraining(training, images);
             } else {
                 Track track = dataBaseHelper.getTrack(getIntent().getIntExtra("trackID", -1));
                 training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
-                trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1));
+                trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1), images);
             }
-            for(int i = 0; i < images.size(); i++) {
-                dataBaseHelper.addImage(trainingID, images.get(i));
-            }
+            training.setLengthTime((int) trainingID);
             Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
         }
     }
