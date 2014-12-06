@@ -92,6 +92,14 @@ public class GpsService extends Service implements GpsStatus.Listener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
+
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        registerReciver();
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationManager.addGpsStatusListener(this);
         locationListener = new LocationListener() {
@@ -138,8 +146,6 @@ public class GpsService extends Service implements GpsStatus.Listener {
             }
         };
         locationManager.requestLocationUpdates(LOCATION_PROVIDER, 0, 0, locationListener);
-        registerReciver();
-        return START_NOT_STICKY;
     }
 
     private void setKnownLocation(Location location) {
@@ -228,7 +234,6 @@ public class GpsService extends Service implements GpsStatus.Listener {
     private void twentySecondsFunction() {
         if(lastLocation != null && currentUser != null) {
             new CurrentLocationSender(this, currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation));
-            Toast.makeText(this, "20 sekund", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -237,6 +242,13 @@ public class GpsService extends Service implements GpsStatus.Listener {
         Intent intent = new Intent();
         intent.setAction(ACTION);
         intent.putExtra("EVENT_TYPE", event);
+        sendBroadcast(intent);
+    }
+
+    private void sendTrainingStatus() {
+        Intent intent = new Intent();
+        intent.setAction(ACTION);
+        intent.putExtra("TRAINING_STATUS", trainingStarted);
         sendBroadcast(intent);
     }
 
@@ -253,6 +265,10 @@ public class GpsService extends Service implements GpsStatus.Listener {
                 } else if(setTraining.equals("STOP")) {
                     stopTraining();
                 }
+            } else if(intent.hasExtra("COMMAND")) {
+                String command = intent.getStringExtra("COMMAND");
+                if(command.equals("SEND_TRAINING_STATUS"));
+                sendTrainingStatus();
             }
         }
     }

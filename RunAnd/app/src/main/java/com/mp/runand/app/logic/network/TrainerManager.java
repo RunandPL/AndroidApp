@@ -165,7 +165,7 @@ public class TrainerManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
     private void showMessage(JSONObject[] jsonObjects) throws JSONException {
         progressDialog.dismiss();
         Toast.makeText(context, jsonObjects[1].getString("msg"), Toast.LENGTH_SHORT).show();
-        if (jsonObjects[1].getString(Constants.type).equals(Constants.AcceptTrainer)) {
+        if (jsonObjects[0].getString(Constants.type).equals(Constants.AcceptTrainer)) {
             ((Activity) context).finish();
         }
     }

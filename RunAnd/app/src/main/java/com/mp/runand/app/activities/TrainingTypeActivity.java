@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import com.mp.runand.app.R;
+import com.mp.runand.app.logic.mapsServices.GpsService;
 import com.mp.runand.app.logic.training.TrainingConstants;
 
 import butterknife.ButterKnife;
@@ -52,6 +53,7 @@ public class TrainingTypeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_training_type);
         ButterKnife.inject(this);
+        startService(new Intent(this, GpsService.class));
     }
 
 

@@ -105,7 +105,7 @@ public class TrainingSummation extends Activity {
         //Setting path
         builder.append(addPath());
         //Setting size
-        builder.append("&size=800x1200");
+        builder.append("&size=800x800");
         Toast.makeText(this, "Dlugosc: "+ builder.length(), Toast.LENGTH_LONG).show();
         return builder.toString();
     }
@@ -133,9 +133,10 @@ public class TrainingSummation extends Activity {
         ArrayList<Location> route = training.getTrack().getRoute();
         for(int i = 0; i < route.size(); i++) {
             builder.append(Separator);
-            builder.append(route.get(i).getLatitude());
+            String tmp = String.format("%.4f", route.get(i).getLatitude());
+            builder.append(tmp);
             builder.append(",");
-            builder.append(route.get(i).getLongitude());
+            builder.append(String.format("%.4f", route.get(i).getLongitude()));
         }
         return builder.toString();
     }

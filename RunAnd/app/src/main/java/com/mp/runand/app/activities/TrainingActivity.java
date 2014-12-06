@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -33,6 +34,7 @@ import com.mp.runand.app.logic.mapsServices.RouteFollowService;
 import com.mp.runand.app.logic.network.JSONRequestBuilder;
 import com.mp.runand.app.logic.network.LiveTrainingManager;
 import com.mp.runand.app.logic.training.ActivityRecongnition;
+import com.mp.runand.app.logic.training.ServiceCheckTask;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
 
@@ -83,6 +85,7 @@ public class TrainingActivity extends Activity {
         trainingStarted = false;
         endOfTraining = true;
         activityRecongnition.stopUpdates();
+        stopService(new Intent(this, GpsService.class));
     }
 
     @InjectView(R.id.takePictureButton)
@@ -134,6 +137,7 @@ public class TrainingActivity extends Activity {
     private ArrayList<TrainingImage> images;
     private Location lastLocation;
     private CurrentUser currentUser;
+    private boolean trainingResolved = false;
 
 
 
@@ -143,7 +147,7 @@ public class TrainingActivity extends Activity {
         setContentView(R.layout.activity_training);
         ButterKnife.inject(this);
 
-        startService(new Intent(this, GpsService.class));
+
         Intent intent = getIntent();
         isRouteTraining = intent.getBooleanExtra(TrainingConstants.IS_ROUTE_TRAINING, false);
         isUserLoggedIn = intent.getBooleanExtra(TrainingConstants.IS_USER_LOGGED_IN, false);
@@ -157,12 +161,23 @@ public class TrainingActivity extends Activity {
         imagesLocations = new ArrayList<Location>();
         images = new ArrayList<TrainingImage>();
         currentUser = databaseHelper.getCurrentUser();
+        setButtonsEnabled(false);
+        ServiceCheckTask serviceCheckTask = new ServiceCheckTask(this);
+        serviceCheckTask.execute();
+    }
+
+    public void checkTrainingStatus() {
+        Intent intent = new Intent();
+        intent.setAction(NAME);
+        intent.putExtra("COMMAND", "SEND_TRAINING_STATUS");
+        sendBroadcast(intent);
+        Log.e("TA", "Check Training Status");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(new Intent(this, GpsService.class));
+
     }
 
     private void startTraining() {
@@ -171,6 +186,9 @@ public class TrainingActivity extends Activity {
         intent.putExtra("SET_TRAINING", "START");
         sendBroadcast(intent);
         trainingStarted = true;
+        startButton.setEnabled(false);
+        stopButton.setEnabled(true);
+        takePictureButton.setEnabled(true);
     }
 
     private void stopTraining() {
@@ -179,6 +197,9 @@ public class TrainingActivity extends Activity {
         intent.putExtra("SET_TRAINING", "STOP");
         sendBroadcast(intent);
         trainingStarted = false;
+        startButton.setEnabled(true);
+        stopButton.setEnabled(false);
+        takePictureButton.setEnabled(false);
     }
 
     private void saveTrainingToDatabase() {
@@ -201,39 +222,10 @@ public class TrainingActivity extends Activity {
             for(int i = 0; i < images.size(); i++) {
                 dataBaseHelper.addImage(trainingID, images.get(i));
             }
-            saveImageToFile(images.get(0).getImage());
             Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void saveImageToFile(String path) {
-        String base = com.mp.runand.app.logic.database.DatabaseUtils.ImageToBase64(path.substring(7));
-        FileOutputStream fos = null;
-        PrintWriter pw = null;
-        try {
-            File file  = new File(Environment.getExternalStorageDirectory() + "//base64.txt");
-            if(!file.exists())
-                file.createNewFile();
-            fos = new FileOutputStream(file);
-            pw = new PrintWriter(Environment.getExternalStorageDirectory() + "//base64.txt");
-            pw.write(base);
-            //pw.print(base);
-            pw.flush();
-            fos.flush();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(fos != null)
-                try {
-                    pw.close();
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
-    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -257,59 +249,6 @@ public class TrainingActivity extends Activity {
             trainingImage.setImage(lastPicturePath);
             images.add(trainingImage);
             lastPicturePath = "";
-        }
-    }
-
-    private void getImageFromFile(TrainingImage trainingImage) {
-        File imageFile = new File(lastPicturePath);
-        if(!imageFile.exists())
-            return;
-
-        BufferedInputStream bis;
-        try {
-            bis = new BufferedInputStream(new FileInputStream(imageFile), 256);
-            ByteArrayBuffer baf = new ByteArrayBuffer(256);
-            int current;
-            while ((current = bis.read()) != -1) {
-                baf.append((byte) current);
-            }
-            //trainingImage.setImage(BitmapFactory.decodeByteArray(baf.toByteArray(),0, baf.length()));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void geoTagPicture(TrainingImage trainingImage) {
-        try {
-            ExifInterface exif = new ExifInterface(lastPicturePath);
-            Location location = ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            trainingImage.setLocation(location);
-            int numLat1 =  (int) Math.floor(location.getLatitude());
-            int numLat2 = (int) Math.floor((location.getLatitude() - numLat1) * 60);
-            double numLat3 = (location.getLatitude() - ((double) numLat1 + ((double) numLat2/60 ))) * 3600000;
-
-            int numLot1 = (int) Math.floor(location.getLongitude());
-            int numLot2 = (int) Math.floor((location.getLongitude() - numLot1) * 60);
-            double numLot3 = (location.getLongitude() - ((double) numLot1 + ((double) numLot2/60))) * 3600000;
-
-            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, numLat1+"/1,"+numLat2+"/1,"+numLat3+"/1000");
-            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, numLot1+"/1,"+numLot2+"/1,"+numLot3+"/1000");
-
-            if (location.getLatitude() > 0) {
-                exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "N");
-            } else {
-                exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, "S");
-            }
-
-            if (location.getLongitude() > 0) {
-                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "E");
-            } else {
-                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, "W");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -346,9 +285,11 @@ public class TrainingActivity extends Activity {
     }
 
     public void setButtonsEnabled(boolean enabled) {
-        startButton.setEnabled(enabled);
-        stopButton.setEnabled(enabled);
-        takePictureButton.setEnabled(enabled);
+        if(!trainingStarted) {
+            startButton.setEnabled(enabled);
+            stopButton.setEnabled(false);
+            takePictureButton.setEnabled(enabled);
+        }
     }
 
     private void getTrainingData(Intent intent) {
@@ -369,11 +310,11 @@ public class TrainingActivity extends Activity {
             switch (eventType) {
                 case GpsStatus.GPS_EVENT_STARTED:
                     Toast.makeText(this, "Gps Searching", Toast.LENGTH_LONG).show();
-                    setButtonsEnabled(false);
+                   // setButtonsEnabled(false);
                     break;
                 case GpsStatus.GPS_EVENT_STOPPED:
                     Toast.makeText(this, "Gps Stopped", Toast.LENGTH_SHORT).show();
-                    setButtonsEnabled(false);
+                    //setButtonsEnabled(false);
                     break;
                 case GpsStatus.GPS_EVENT_FIRST_FIX:
                     Toast.makeText(this, "Gps Fixed", Toast.LENGTH_SHORT).show();
@@ -384,13 +325,32 @@ public class TrainingActivity extends Activity {
     }
 
     private void setLastLocation(Location location) {
-        if(lastLocation == null) {
+        if(trainingResolved) {
+            if (lastLocation == null && !trainingStarted) {
+                Log.e("TA", "New Training");
+                lastLocation = location;
+                new LiveTrainingManager(TrainingActivity.this, currentUser)
+                        .execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(lastLocation.getLatitude(), lastLocation.getLongitude(), 0));
+                return;
+            }
             lastLocation = location;
-            new LiveTrainingManager(TrainingActivity.this, currentUser)
-                    .execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(lastLocation.getLatitude(),lastLocation.getLongitude(), 0));
-            return;
         }
-        lastLocation = location;
+    }
+
+    private void resolveTrainingStatus(boolean status) {
+        trainingResolved = true;
+        Log.e("RES", String.valueOf(status));
+        trainingStarted = status;
+        if(status) {
+            Log.e("KURWA", "MAC");
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+            takePictureButton.setEnabled(true);
+        } else {
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            takePictureButton.setEnabled(false);
+        }
     }
 
     private class MyReciver extends BroadcastReceiver {
@@ -407,6 +367,8 @@ public class TrainingActivity extends Activity {
                 resolveEventType(eventType);
             } else if(intent.hasExtra("LAST_LOCATION")) {
                 setLastLocation((Location) intent.getParcelableExtra("LAST_LOCATION"));
+            } else if(intent.hasExtra("TRAINING_STATUS")) {
+                resolveTrainingStatus(intent.getBooleanExtra("TRAINING_STATUS", false));
             }
             getTrainingData(intent);
         }
