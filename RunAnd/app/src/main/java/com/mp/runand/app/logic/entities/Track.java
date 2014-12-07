@@ -25,7 +25,7 @@ public class Track implements Parcelable {
     //Only to track choose activity
     private boolean choosen;
 
-
+    //{"msg":[{"id":17,"route":"[{\"x\":214.421,\"y\":24.4231,\"z\":523.423}]","title":null,"description":null,"isPublic":true,"length":null,"urls":[]}]}
     public Track() {
         //Always need to be rewritten
         this.lastUpdate = new Date(System.currentTimeMillis());
@@ -127,7 +127,7 @@ public class Track implements Parcelable {
         return area;
     }
 
-    public void setLocation(Location area) {
+    public void setArea(Location area) {
         this.area = area;
     }
 

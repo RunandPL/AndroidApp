@@ -65,6 +65,8 @@
     <string name="password_set_ok">Nowe hasło zostało ustawione</string>
     <string name="title_activity_training_summation">Podsumowanie Treningu</string>
     <string name="takePicture">Zrób zdjęcie</string>
+    <string name="no_track_selected_warning">Nie wybrano trasy</string>
+    <string name="one_track_can_be_choosen_warning">Tylko jedna trasa może być wybrana</string>
     <style name="ButtonText">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>

@@ -30,6 +30,8 @@ public class Constants {
     public static final String beginLiveTraining = "api/live/start";
     public static final String liveUpdate = "api/live/update";
     public static final String stopLiveTraining = "api/live/stop";
+    public static final String getUserTracks = "api/route";
+    public static final String getTrainerTracks = "api/route/trainer";
 
     //JSON login
     public static final String gmailAcc = "uname";
@@ -48,6 +50,8 @@ public class Constants {
     public static final String speedRate = "speedRate";
     public static final String burnedCalories = "burnedCalories";
     public static final String lengthTime = "lengthTime";
+    public static final String images = "images";
+    public static final String base64ImageRepresentation = "data";
 
     //training manager
     public static String training = "training";

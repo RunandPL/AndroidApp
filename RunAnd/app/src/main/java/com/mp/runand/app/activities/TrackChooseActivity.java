@@ -14,7 +14,9 @@ import android.widget.Toast;
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.adapters.TrackListAdapter;
 import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Track;
+import com.mp.runand.app.logic.network.TrackGetter;
 import com.mp.runand.app.logic.training.TrainingConstants;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public class TrackChooseActivity extends Activity implements AdapterView.OnItemC
         for(int i = 0; i < tracks.size(); i++) {
             //Two tracks cannot be choosen
             if(choosen && tracks.get(i).isChoosen()) {
-                Toast.makeText(getBaseContext(), "Nie można wybrać kilku tras", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), getText(R.string.one_track_can_be_choosen_warning), Toast.LENGTH_SHORT).show();
                 return;
             }
             if(tracks.get(i).isChoosen()) {
@@ -44,8 +46,10 @@ public class TrackChooseActivity extends Activity implements AdapterView.OnItemC
                 choosenNumber = i;
             }
         }
-        if(choosenNumber == -1)
+        if(choosenNumber == -1){
+            Toast.makeText(this,getText(R.string.no_track_selected_warning),Toast.LENGTH_SHORT).show();
             return;
+        }
         Intent intent = new Intent(getBaseContext(), TrainingActivity.class);
         intent.putExtra(TrainingConstants.IS_USER_LOGGED_IN, true);
         intent.putExtra(TrainingConstants.IS_ROUTE_TRAINING, true);
@@ -53,8 +57,11 @@ public class TrackChooseActivity extends Activity implements AdapterView.OnItemC
         intent.putExtra("trackID", tracks.get(choosenNumber).getId());
         startActivity(intent);
     }
+
+
     private DataBaseHelper dataBaseHelper;
     private ArrayList<Track> tracks;
+    private CurrentUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +69,8 @@ public class TrackChooseActivity extends Activity implements AdapterView.OnItemC
         setContentView(R.layout.activity_track_choose);
         ButterKnife.inject(this);
         dataBaseHelper = DataBaseHelper.getInstance(getBaseContext());
-        tracks = dataBaseHelper.getAllTracks();
-        TrackListAdapter trackListAdapter = new TrackListAdapter(getBaseContext(), tracks);
-        listView.setAdapter(trackListAdapter);
-        listView.setOnItemClickListener(this);
+        currentUser = dataBaseHelper.getCurrentUser();
+        new TrackGetter(this,currentUser).execute();
     }
 
 
@@ -93,5 +98,25 @@ public class TrackChooseActivity extends Activity implements AdapterView.OnItemC
         Intent intent = new Intent(getBaseContext(), MapLook.class);
         intent.putExtra("POSITIONS", tracks.get((int) l).getRoute());
         startActivity(intent);
+    }
+
+    public void showTracks(){
+        ArrayList<Track> tmp = dataBaseHelper.getAllTracks();
+        tracks = new ArrayList<Track>();
+        for(Track t : tmp){
+            boolean exist = false;
+            for(Track tt : tracks){
+                exist=t.getArea().getLongitude() == tt.getArea().getLongitude()
+                        && t.getArea().getLatitude() == tt.getArea().getLatitude()
+                        && t.getArea().getAltitude() == tt.getArea().getAltitude();
+            }
+            if(!exist){
+                tracks.add(t);
+            }
+        }
+        //show results
+        TrackListAdapter trackListAdapter = new TrackListAdapter(getBaseContext(), tracks);
+        listView.setAdapter(trackListAdapter);
+        listView.setOnItemClickListener(this);
     }
 }

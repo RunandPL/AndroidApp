@@ -4,9 +4,13 @@ import android.location.Location;
 
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.training.TrainingImage;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Created by Mateusz on 2014-10-29.
@@ -150,7 +154,7 @@ public class JSONRequestBuilder {
      * @param t training
      * @return json req
      */
-    public static JSONObject buildSendTrainingRequestAsJson(Training t) {
+    public static JSONObject buildSendTrainingRequestAsJson(Training t/*, List<TrainingImage> images*/) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put(Constants.type, Constants.SendTraining)
@@ -158,11 +162,32 @@ public class JSONRequestBuilder {
                     .put(Constants.burnedCalories, t.getBurnedCalories())
                     .put(Constants.speedRate, t.getSpeedRate())
                     .put(Constants.track, buildSendTrackRequestAsJson(t.getTrack()));
+                    //.put(Constants.images, buildImagesAsJsonArray(images));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return jsonObject;
     }
+
+    /**
+     * Convert List<TrainingImage> into JsonArray
+     *
+     * @param images List<TrainingImage>
+     * @return JsonArray Representation
+     * @throws JSONException
+     */
+//    public static JSONArray buildImagesAsJsonArray(List<TrainingImage> images) throws JSONException {
+//        JSONArray toSend = new JSONArray(images.size());
+//        for (int i = 0; i < images.size(); i++) {
+//            JSONObject image = new JSONObject();
+//            image.put(Constants.latitude, images.get(i).getLocation().getLatitude())
+//                    .put(Constants.longitude, images.get(i).getLocation().getLongitude())
+//                    .put(Constants.altitude, images.get(i).getLocation().getAltitude())
+//                    .put(Constants.base64ImageRepresentation, images.get(i).getImgInBase64());
+//            toSend.put(i, image);
+//        }
+//        return toSend;
+//    }
 
     /**
      * Password change request

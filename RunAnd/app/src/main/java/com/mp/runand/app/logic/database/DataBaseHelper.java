@@ -5,29 +5,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.media.Image;
 import android.util.Log;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mp.runand.app.R;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
 import com.mp.runand.app.logic.training.TrainingImage;
-
-import org.apache.http.util.ByteArrayBuffer;
 
 /**
  * Created by Sebastian on 2014-10-13.
@@ -249,30 +238,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    /**
-     * Getting every track which belong to User with given userName
-     *
-     *  for the user to be loaded from database
-     *  List of user tracks
-
-    public List<Track> getTracksByUser(String userName) {
-        //Select * from tracks tr, usertrack ut where ut.userName = userName and ut.trackid = tr.id;
-        ArrayList<Track> result = new ArrayList<Track>();
-        String query = "SELECT * FROM " + DatabaseConstants.TRACK_TABLE_NAME + " tr, " + DatabaseConstants.USER_TRACK_NAME + " ut "
-                + "WHERE ut." + DatabaseConstants.USER_TRACK_USER_NAME + " = '" + userName + "' and ut." + DatabaseConstants.USER_TRACK_TRACK_ID
-                + " = tr." + DatabaseConstants.ID;
-        SQLiteDatabase database = getReadableDatabase();
-
-        Cursor cursor = database.rawQuery(query, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                result.add(getTrackFromCursor(cursor));
-            } while (cursor.moveToNext());
-        }
-
-        return result;
-    } */
     public long addTraining(Training training, List<TrainingImage> images) {
         //Writing track to database
         int trackID = addTrack(training.getTrack());
@@ -402,7 +367,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         track.setLastUpdate(cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_LAST_UPDATE)));
         track.setLength(cursor.getDouble(cursor.getColumnIndex(DatabaseConstants.TRACK_LENGTH)));
         String area = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_AREA));
-        track.setLocation(DatabaseUtils.stringToArea(area));
+        track.setArea(DatabaseUtils.stringToArea(area));
         String route = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRACK_ROUTE));
         track.setRoute(DatabaseUtils.stringToRoute(route));
 

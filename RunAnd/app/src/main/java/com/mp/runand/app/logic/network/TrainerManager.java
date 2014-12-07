@@ -71,7 +71,7 @@ public class TrainerManager extends AsyncTask<JSONObject, Void, JSONObject[]> {
     protected JSONObject[] doInBackground(JSONObject... jsonObjects) {
         try {
             //only for debugging
-            android.os.Debug.waitForDebugger();
+            //android.os.Debug.waitForDebugger();
             //setting timeouts for connection
             HttpParams httpParameters = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParameters, Constants.timeoutConnection);
