@@ -2,6 +2,7 @@ package com.mp.runand.app.logic.network;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.mp.runand.app.logic.entities.CurrentUser;
@@ -93,8 +94,10 @@ public class CurrentLocationSender extends AsyncTask<JSONObject, Void, Boolean> 
         request.setEntity(stringEntity);
 
         HttpResponse serverResponse = httpClient.execute(request);
+        Log.e("CLS", String.valueOf(serverResponse.getStatusLine().getStatusCode()));
         if (serverResponse.getStatusLine().getStatusCode() == 200) {
 
+            Log.e("CLS", "Resopnse 200");
             HttpEntity entity = serverResponse.getEntity();
             String responseString = EntityUtils.toString(entity, "UTF-8");
             JSONObject response = new JSONObject(responseString);
@@ -104,6 +107,7 @@ public class CurrentLocationSender extends AsyncTask<JSONObject, Void, Boolean> 
             if(length>0) {
                 JSONObject toRead = msgs.getJSONObject(length - 1);
                 MessagesList.getInstance().putMessages(toRead.getString("msg"));
+                Log.e("CLS", toRead.getString("msg"));
             }
             return true;
         } else if (serverResponse.getStatusLine().getStatusCode() == 401) {

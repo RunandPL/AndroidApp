@@ -14,6 +14,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.mp.runand.app.activities.TrainingActivity;
@@ -145,7 +146,7 @@ public class GpsService extends Service implements GpsStatus.Listener {
                 }
             }
         };
-        locationManager.requestLocationUpdates(LOCATION_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(LOCATION_PROVIDER, 2000, 0, locationListener);
     }
 
     private void setKnownLocation(Location location) {
@@ -233,7 +234,9 @@ public class GpsService extends Service implements GpsStatus.Listener {
 
     private void twentySecondsFunction() {
         if(lastLocation != null && currentUser != null) {
-            new CurrentLocationSender(this, currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation));
+            Log.e("GPS", "SendLocation");
+            new CurrentLocationSender(this, currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation, burnedCalories,
+                    0, 0, length));
         }
     }
 

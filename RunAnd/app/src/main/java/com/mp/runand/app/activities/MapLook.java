@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.training.TrackSimpliyfier;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
 import com.squareup.picasso.Picasso;

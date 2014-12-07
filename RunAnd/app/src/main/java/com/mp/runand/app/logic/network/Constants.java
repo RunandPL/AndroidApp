@@ -58,4 +58,8 @@ public class Constants {
     public static String latitude = "x";
     public static String longitude = "y";
     public static String altitude = "z";
+    public static String calories = "calories";
+    public static String trainingTime = "runTime";
+    public static String pace = "tempo";
+    public static String trackLength = "distance";
 }

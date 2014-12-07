@@ -14,11 +14,13 @@ import android.widget.Toast;
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.training.TrackSimpliyfier;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -62,6 +64,19 @@ public class TrainingSummation extends Activity {
         ButterKnife.inject(this);
 
         training = getIntent().getParcelableExtra(TrainingConstants.TRAINING);
+        createImageUrl();
+        List<Location> tmp = training.getTrack().getRoute();
+        for(int i =0; i < tmp.size(); i++) {
+            tmp.get(i).setLatitude(tmp.get(i).getLatitude() * 10000);
+            tmp.get(i).setLongitude(tmp.get(i).getLongitude() * 10000);
+        }
+        List<Location> result = TrackSimpliyfier.simplify(training.getTrack().getRoute());
+        training.getTrack().setRoute(new ArrayList<Location>(result));
+        tmp = training.getTrack().getRoute();
+        for(int i =0; i < tmp.size(); i++) {
+            tmp.get(i).setLatitude(tmp.get(i).getLatitude() / 10000);
+            tmp.get(i).setLongitude(tmp.get(i).getLongitude() / 10000);
+        }
         databaseHelper = DataBaseHelper.getInstance(this);
 
         setValuesOnViews();
@@ -134,10 +149,9 @@ public class TrainingSummation extends Activity {
         ArrayList<Location> route = training.getTrack().getRoute();
         for(int i = 0; i < route.size(); i++) {
             builder.append(Separator);
-            String tmp = String.format("%.4f", route.get(i).getLatitude());
-            builder.append(tmp);
+            builder.append(route.get(i).getLatitude());
             builder.append(",");
-            builder.append(String.format("%.4f", route.get(i).getLongitude()));
+            builder.append(route.get(i).getLongitude());
         }
         return builder.toString();
     }

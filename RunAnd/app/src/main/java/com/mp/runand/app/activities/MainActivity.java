@@ -61,7 +61,7 @@ public class MainActivity extends Activity {
         Training tt = new Training("mail",345,t,23,23);
 
         //new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(10,10,10));
-        new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area));
+        //new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area));
         //new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area2));
         //new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(tt));
     }

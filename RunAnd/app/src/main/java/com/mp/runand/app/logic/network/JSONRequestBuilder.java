@@ -251,13 +251,17 @@ public class JSONRequestBuilder {
      * @param l current location
      * @return jsonRequest
      */
-    public static JSONObject buildSendCurrentLocationRequestAsJson(Location l) {
+    public static JSONObject buildSendCurrentLocationRequestAsJson(Location l, int burnedCalories, long trainingTime, double pace, float length) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put(Constants.type, Constants.liveUpdate);
             jsonObject.put(Constants.longitude, l.getLongitude());
             jsonObject.put(Constants.latitude, l.getLatitude());
             jsonObject.put(Constants.altitude, l.getLatitude());
+            jsonObject.put(Constants.calories, burnedCalories);
+            jsonObject.put(Constants.trainingTime, trainingTime);
+            jsonObject.put(Constants.pace, pace);
+            jsonObject.put(Constants.trackLength, length);
         } catch (JSONException e) {
             e.printStackTrace();
         }

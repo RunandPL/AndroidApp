@@ -33,6 +33,7 @@ import com.mp.runand.app.logic.mapsServices.GpsService;
 import com.mp.runand.app.logic.mapsServices.RouteFollowService;
 import com.mp.runand.app.logic.network.JSONRequestBuilder;
 import com.mp.runand.app.logic.network.LiveTrainingManager;
+import com.mp.runand.app.logic.network.TrackSender;
 import com.mp.runand.app.logic.training.ActivityRecongnition;
 import com.mp.runand.app.logic.training.ServiceCheckTask;
 import com.mp.runand.app.logic.training.TrainingConstants;
@@ -219,7 +220,7 @@ public class TrainingActivity extends Activity {
                 trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1), images);
             }
             training.setLengthTime((int) trainingID);
-            Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Zapexecuteisano Trening", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -299,6 +300,7 @@ public class TrainingActivity extends Activity {
             saveTrainingToDatabase();
             //Starting activity to summup training
             new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(training));
+            new TrackSender(this, currentUser).execute(training.getTrack());
         }
     }
 
