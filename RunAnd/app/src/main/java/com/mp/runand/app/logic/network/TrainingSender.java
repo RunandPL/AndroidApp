@@ -3,11 +3,13 @@ package com.mp.runand.app.logic.network;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Training;
+import com.mp.runand.app.logic.training.TrainingImage;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -24,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * Task which sends trainings to server
@@ -34,16 +37,18 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
     Context context;
     CurrentUser currentUser;
     ProgressDialog progressDialog;
+    List<TrainingImage> images;
 
     //internal variables
     Boolean isError = false;
     String error = "";
     boolean success = false;
 
-    public TrainingSender(Context ctx, CurrentUser cu){
+    public TrainingSender(Context ctx, CurrentUser cu, List<TrainingImage> images){
         context=ctx;
         currentUser = cu;
         progressDialog = new ProgressDialog(ctx);
+        this.images = images;
     }
 
     /**
@@ -68,10 +73,10 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
     protected JSONObject doInBackground(Training... training) {
         try {
             //uncomment only for debugging
-            android.os.Debug.waitForDebugger();
+            //android.os.Debug.waitForDebugger();
 
             //creating Json
-            JSONObject requestJson = JSONRequestBuilder.buildSendTrainingRequestAsJson(training[0]);
+            JSONObject requestJson = JSONRequestBuilder.buildSendTrainingRequestAsJson(training[0], images);
 
             //setting timeouts for connection
             HttpParams httpParameters = new BasicHttpParams();
@@ -88,6 +93,7 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
 
             //execute and obtaining response
             HttpResponse serverResponse = httpClient.execute(request);
+            Log.e("TS", String.valueOf(serverResponse.getStatusLine().getStatusCode()));
             if(serverResponse.getStatusLine().getStatusCode()==200){
                 success=true;
             }

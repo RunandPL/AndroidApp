@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.NameBuilder;
+import com.mp.runand.app.logic.database.DatabaseUtils;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
 import com.mp.runand.app.logic.entities.Track;
@@ -34,12 +35,14 @@ import com.mp.runand.app.logic.mapsServices.RouteFollowService;
 import com.mp.runand.app.logic.network.JSONRequestBuilder;
 import com.mp.runand.app.logic.network.LiveTrainingManager;
 import com.mp.runand.app.logic.network.TrackSender;
+import com.mp.runand.app.logic.network.TrainingSender;
 import com.mp.runand.app.logic.training.ActivityRecongnition;
 import com.mp.runand.app.logic.training.ServiceCheckTask;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
 
 import org.apache.http.util.ByteArrayBuffer;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -245,6 +248,7 @@ public class TrainingActivity extends Activity {
             TrainingImage trainingImage = new TrainingImage();
             trainingImage.setLocation(lastLocation);
             trainingImage.setImage(lastPicturePath);
+            trainingImage.setBase64(DatabaseUtils.ImageToBase64(lastPicturePath));
             images.add(trainingImage);
             lastPicturePath = "";
         }
@@ -301,6 +305,8 @@ public class TrainingActivity extends Activity {
             //Starting activity to summup training
             new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(training));
             new TrackSender(this, currentUser).execute(training.getTrack());
+            JSONObject tmp = JSONRequestBuilder.buildSendTrainingRequestAsJson(training, images);
+            new TrainingSender(this, currentUser, images).execute(training);
         }
     }
 

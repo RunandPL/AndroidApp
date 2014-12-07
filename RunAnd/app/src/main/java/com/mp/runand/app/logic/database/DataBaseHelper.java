@@ -316,8 +316,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         String imagesLocations = cursor.getString(cursor.getColumnIndex(DatabaseConstants.TRAIN_TABLE_IMAGES_POSITION));
         ArrayList<Location> locations = DatabaseUtils.stringToRoute(imagesLocations);
         ArrayList<Bitmap> bitmaps = DatabaseUtils.stringToImages(imagesInBase64);
+        String[] tmp = imagesInBase64.split(":");
         for(int i = 0; i < bitmaps.size(); i++) {
-            result.add(new TrainingImage(locations.get(i), "", bitmaps.get(i)));
+            result.add(new TrainingImage(locations.get(i), "", bitmaps.get(i), tmp[i]));
         }
         database.close();
         return result;

@@ -12,21 +12,31 @@ public class TrainingImage implements Parcelable {
     private String image;
     private Location location;
     private Bitmap imageInBMP;
+    private String base64;
 
     public TrainingImage() {
 
     }
 
-    public TrainingImage(Location location, String image, Bitmap imageInBMP) {
+    public TrainingImage(Location location, String image, Bitmap imageInBMP, String base64) {
         this.location = location;
         this.image = image;
         this.imageInBMP = imageInBMP;
+        this.base64 = base64;
     }
 
     public TrainingImage(Parcel parcel) {
         this.image = parcel.readString();
         this.location = parcel.readParcelable(Location.class.getClassLoader());
         this.imageInBMP = parcel.readParcelable(Bitmap.class.getClassLoader());
+    }
+
+    public String getBase64() {
+        return base64;
+    }
+
+    public void setBase64(String base64) {
+        this.base64 = base64;
     }
 
     public Bitmap getImageInBMP() {

@@ -154,15 +154,15 @@ public class JSONRequestBuilder {
      * @param t training
      * @return json req
      */
-    public static JSONObject buildSendTrainingRequestAsJson(Training t/*, List<TrainingImage> images*/) {
+    public static JSONObject buildSendTrainingRequestAsJson(Training t, List<TrainingImage> images) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put(Constants.type, Constants.SendTraining)
                     .put(Constants.lengthTime, t.getLengthTime())
                     .put(Constants.burnedCalories, t.getBurnedCalories())
                     .put(Constants.speedRate, t.getSpeedRate())
-                    .put(Constants.track, buildSendTrackRequestAsJson(t.getTrack()));
-                    //.put(Constants.images, buildImagesAsJsonArray(images));
+                    .put(Constants.track, buildSendTrackRequestAsJson(t.getTrack()))
+                    .put(Constants.images, buildImagesAsJsonArray(images));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -176,18 +176,19 @@ public class JSONRequestBuilder {
      * @return JsonArray Representation
      * @throws JSONException
      */
-//    public static JSONArray buildImagesAsJsonArray(List<TrainingImage> images) throws JSONException {
-//        JSONArray toSend = new JSONArray(images.size());
-//        for (int i = 0; i < images.size(); i++) {
-//            JSONObject image = new JSONObject();
-//            image.put(Constants.latitude, images.get(i).getLocation().getLatitude())
-//                    .put(Constants.longitude, images.get(i).getLocation().getLongitude())
-//                    .put(Constants.altitude, images.get(i).getLocation().getAltitude())
-//                    .put(Constants.base64ImageRepresentation, images.get(i).getImgInBase64());
-//            toSend.put(i, image);
-//        }
-//        return toSend;
-//    }
+    public static JSONArray buildImagesAsJsonArray(List<TrainingImage> images) throws JSONException {
+        JSONArray toSend = new JSONArray();
+        //JSONArray toSend = new JSONArray(images.size());
+        for (int i = 0; i < images.size(); i++) {
+            JSONObject image = new JSONObject();
+            image.put(Constants.latitude, images.get(i).getLocation().getLatitude())
+                    .put(Constants.longitude, images.get(i).getLocation().getLongitude())
+                    .put(Constants.altitude, images.get(i).getLocation().getAltitude())
+                    .put(Constants.base64ImageRepresentation, images.get(i).getBase64());
+            toSend.put(i, image);
+        }
+        return toSend;
+    }
 
     /**
      * Password change request
