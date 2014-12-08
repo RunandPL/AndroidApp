@@ -76,7 +76,7 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
             //android.os.Debug.waitForDebugger();
 
             //creating Json
-            JSONObject requestJson = JSONRequestBuilder.buildSendTrainingRequestAsJson(training[0], images);
+            JSONObject requestJson = JSONRequestBuilder.buildSendTrainingRequestAsJson(training[0]);
 
             //setting timeouts for connection
             HttpParams httpParameters = new BasicHttpParams();

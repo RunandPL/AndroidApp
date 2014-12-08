@@ -305,7 +305,7 @@ public class TrainingActivity extends Activity {
             //Starting activity to summup training
             new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(training));
             new TrackSender(this, currentUser).execute(training.getTrack());
-            JSONObject tmp = JSONRequestBuilder.buildSendTrainingRequestAsJson(training, images);
+            JSONObject tmp = JSONRequestBuilder.buildSendTrainingRequestAsJson(training);
             new TrainingSender(this, currentUser, images).execute(training);
         }
     }

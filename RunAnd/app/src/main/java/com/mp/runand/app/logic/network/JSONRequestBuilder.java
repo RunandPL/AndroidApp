@@ -154,15 +154,15 @@ public class JSONRequestBuilder {
      * @param t training
      * @return json req
      */
-    public static JSONObject buildSendTrainingRequestAsJson(Training t, List<TrainingImage> images) {
+    public static JSONObject buildSendTrainingRequestAsJson(Training t/*, List<TrainingImage> images*/) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put(Constants.type, Constants.SendTraining)
                     .put(Constants.lengthTime, t.getLengthTime())
                     .put(Constants.burnedCalories, t.getBurnedCalories())
                     .put(Constants.speedRate, t.getSpeedRate())
-                    .put(Constants.track, buildSendTrackRequestAsJson(t.getTrack()))
-                    .put(Constants.images, buildImagesAsJsonArray(images));
+                    .put(Constants.track, buildSendTrackRequestAsJson(t.getTrack()));
+                    //.put(Constants.images, buildImagesAsJsonArray(images));
         } catch (JSONException e) {
             e.printStackTrace();
         }
