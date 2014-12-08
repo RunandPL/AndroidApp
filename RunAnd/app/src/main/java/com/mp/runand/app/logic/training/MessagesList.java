@@ -23,7 +23,6 @@ public class MessagesList {
 
     private MessagesList() {
         this.messages = new ArrayList<String>();
-        messages.add("DUPA");
         lastMessage="";
     }
 

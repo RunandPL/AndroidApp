@@ -86,7 +86,6 @@ public class RouteFollowService extends Service {
     }
 
     private void checkPosition(Location location) {
-        if(!finished && isBetterLocation(location)) {
             if (state == State.START) {
                 float distance = location.distanceTo(routeToFollow.get(0));
                 if (distance <= 3) {
@@ -95,7 +94,6 @@ public class RouteFollowService extends Service {
                 }
             } else if (state == State.MIDDLE) {
                 if (location.distanceTo(routeToFollow.get(nextLocation)) > maxDistance) {
-                    MessagesList.getInstance().putMessages("Oddalasz się");
                 } else {
                     maxDistance = location.distanceTo(routeToFollow.get(nextLocation));
                     if (maxDistance <= 3) {
@@ -108,7 +106,6 @@ public class RouteFollowService extends Service {
                     finished = true;
                 }
             }
-        }
     }
 
     private void calculateNextPoint(Location location) {
@@ -129,33 +126,6 @@ public class RouteFollowService extends Service {
         } else {
             state = State.MIDDLE;
         }
-    }
-
-    private boolean isBetterLocation(Location location) {
-        if(currentBestLocation == null)
-            return true;
-        //Sprawdzam czy lokalizacja jest nowsza czy starsza
-        long timeDelta = location.getTime() - currentBestLocation.getTime();
-        boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
-        boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
-        boolean isNewer = timeDelta > 0;
-
-        if(isSignificantlyNewer)
-            return true;
-        else if(isSignificantlyOlder)
-            return false;
-
-        //Sprawdzam czy lokalizacja jest dokładniejsza
-        int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
-        boolean isLessAccurate = accuracyDelta > 0;
-        boolean isMoreAccurate = accuracyDelta < 0;
-        boolean isSignificantlyLessAcurate = accuracyDelta > 200;
-
-        if(isMoreAccurate)
-            return true;
-        else if (isNewer && !isLessAccurate)
-            return true;
-        return false;
     }
 
     private enum State {

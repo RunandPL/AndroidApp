@@ -29,17 +29,4 @@
         android:text="@string/routeTraining"
         android:background="@drawable/layer_button_road"
         style="@style/ButtonText"/>
-
-<<<<<<< HEAD
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/notLoginTrainingButton"
-        android:text="@string/notLoginTraining"
-        android:background="@drawable/layer_button_road"
-        style="@style/ButtonText"/>
-=======
->>>>>>> Nie wiem jakś tam
 </RelativeLayout>
