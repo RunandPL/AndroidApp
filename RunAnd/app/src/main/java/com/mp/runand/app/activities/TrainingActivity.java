@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -179,9 +180,9 @@ public class TrainingActivity extends Activity {
         intent.putExtra("SET_TRAINING", "START");
         sendBroadcast(intent);
         trainingStarted = true;
-        startButton.setEnabled(false);
-        stopButton.setEnabled(true);
-        takePictureButton.setEnabled(true);
+        startButton.setVisibility(View.GONE);
+        stopButton.setVisibility(View.VISIBLE);
+        takePictureButton.setVisibility(View.VISIBLE);
     }
 
     private void stopTraining() {
@@ -190,9 +191,9 @@ public class TrainingActivity extends Activity {
         intent.putExtra("SET_TRAINING", "STOP");
         sendBroadcast(intent);
         trainingStarted = false;
-        startButton.setEnabled(true);
-        stopButton.setEnabled(false);
-        takePictureButton.setEnabled(false);
+        startButton.setVisibility(View.VISIBLE);
+        stopButton.setVisibility(View.GONE);
+        takePictureButton.setVisibility(View.GONE);
     }
 
     private void saveTrainingToDatabase() {
@@ -279,9 +280,15 @@ public class TrainingActivity extends Activity {
 
     public void setButtonsEnabled(boolean enabled) {
         if(!trainingStarted) {
-            startButton.setEnabled(enabled);
-            stopButton.setEnabled(false);
-            takePictureButton.setEnabled(enabled);
+            startButton.setVisibility(View.GONE);
+            if(enabled) {
+                startButton.setVisibility(View.VISIBLE);
+                takePictureButton.setVisibility(View.VISIBLE);
+            } else {
+                startButton.setVisibility(View.GONE);
+                takePictureButton.setVisibility(View.GONE);
+            }
+
         }
     }
 
@@ -341,14 +348,13 @@ public class TrainingActivity extends Activity {
         Log.e("RES", String.valueOf(status));
         trainingStarted = status;
         if(status) {
-            Log.e("KURWA", "MAC");
-            startButton.setEnabled(false);
-            stopButton.setEnabled(true);
-            takePictureButton.setEnabled(true);
+            startButton.setVisibility(View.GONE);
+            stopButton.setVisibility(View.VISIBLE);
+            takePictureButton.setVisibility(View.VISIBLE);
         } else {
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-            takePictureButton.setEnabled(false);
+            startButton.setVisibility(View.VISIBLE);
+            stopButton.setVisibility(View.GONE);
+            takePictureButton.setVisibility(View.GONE);
         }
     }
 
