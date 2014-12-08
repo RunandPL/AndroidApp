@@ -24,14 +24,17 @@ import com.google.android.gms.plus.model.people.Person;
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.mapsServices.GpsService;
 import com.mp.runand.app.logic.network.JSONRequestBuilder;
 import com.mp.runand.app.logic.network.LoggingManager;
+import com.mp.runand.app.logic.training.TrainingConstants;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 
 public class Login extends Activity
@@ -49,6 +52,18 @@ public class Login extends Activity
     Button skipLogin;
     @InjectView(R.id.register)
     Button register;
+
+    @InjectView(R.id.notLoggedTraining)
+    Button notLoginTrainingButton;
+
+    @OnClick(R.id.notLoggedTraining)
+    void notLoginOnClick(Button button) {
+        Intent intent = new Intent(getBaseContext(), TrainingActivity.class);
+        intent.putExtra(TrainingConstants.IS_USER_LOGGED_IN, false);
+        intent.putExtra(TrainingConstants.IS_ROUTE_TRAINING, false);
+        startService(new Intent(this, GpsService.class));
+        startActivity(intent);
+    }
 
     //needed for g+ api
     private GoogleApiClient mGoogleApiClient;

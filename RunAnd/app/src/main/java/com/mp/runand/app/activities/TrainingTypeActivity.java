@@ -37,17 +37,6 @@ public class TrainingTypeActivity extends Activity {
         startActivity(intent);
     }
 
-    @InjectView(R.id.notLoginTrainingButton)
-    Button notLoginTrainingButton;
-
-    @OnClick(R.id.notLoginTrainingButton)
-    void notLoginOnClick(Button button) {
-        Intent intent = new Intent(getBaseContext(), TrainingActivity.class);
-        intent.putExtra(TrainingConstants.IS_USER_LOGGED_IN, false);
-        intent.putExtra(TrainingConstants.IS_ROUTE_TRAINING, false);
-        startActivity(intent);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

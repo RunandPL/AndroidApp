@@ -32,17 +32,18 @@ import com.mp.runand.app.logic.training.TrainingConstants;
 public class GpsService extends Service implements GpsStatus.Listener {
     public static final String ACTION = "GPS_ACTION";
     private final String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
-    private static final int TWO_MINUTES = 1000 * 60 * 2;
-    private static final int SUFFICIENT_ACCURACY = 100;
+    private static final int SUFFICIENT_ACCURACY = 20;
+    private static double METRIC_RUNNING_FACTOR = 1.02784823;
     private ArrayList<Location> locations = new ArrayList<Location>();
     private LocationManager locationManager = null;
     private boolean startTracking = false;
-    private Location currentBestLocation = null;
     private LocationListener locationListener = null;
     private float length = 0;
     private int burnedCalories = 0;
     private long startTime = 0;
     private long stopTime = 0;
+    private long trainingTime = 0;
+    private double pace;
     private Location lastLocation = null;
     private MessagesReader messagesReader;
     private long delta;
@@ -140,9 +141,9 @@ public class GpsService extends Service implements GpsStatus.Listener {
                 t2 = System.currentTimeMillis();
                 delta += t2 - t1;
                 t1 = t2;
-                if(delta > 3000) {
+                if(delta > 5000) {
                     delta = 0;
-                    twentySecondsFunction();
+                    sendLocationPeriod();
                 }
             }
         };
@@ -174,12 +175,11 @@ public class GpsService extends Service implements GpsStatus.Listener {
     }
 
     private void sendTrainingData() {
-        //Countin training time
-        long timeDiffrence = stopTime - startTime;
+        trainingTime += stopTime - startTime;
         Intent intent = new Intent();
         intent.setAction(ACTION);
         intent.putParcelableArrayListExtra(TrainingConstants.POSITIONS, locations);
-        intent.putExtra(TrainingConstants.TRAINING_TIME, timeDiffrence);
+        intent.putExtra(TrainingConstants.TRAINING_TIME, trainingTime);
         intent.putExtra(TrainingConstants.TRAININ_LENGTH, Math.round(length));
         intent.putExtra(TrainingConstants.BURNED_CALORIES, burnedCalories);
         sendBroadcast(intent);
@@ -187,7 +187,6 @@ public class GpsService extends Service implements GpsStatus.Listener {
 
 
     private void updatePositionsList(Location location) {
-        if(isBetterLocation(location)) {
             locations.add(location);
             if(lastLocation == null)
                 setKnownLocation(location);
@@ -195,7 +194,6 @@ public class GpsService extends Service implements GpsStatus.Listener {
                 length += lastLocation.distanceTo(location);
                 setKnownLocation(location);
             }
-        }
     }
 
     private void sendLastLocation() {
@@ -205,34 +203,13 @@ public class GpsService extends Service implements GpsStatus.Listener {
         sendBroadcast(intent);
     }
 
-    private boolean isBetterLocation(Location location) {
-        if(currentBestLocation == null)
-            return true;
-        //Sprawdzam czy lokalizacja jest nowsza czy starsza
-        long timeDelta = location.getTime() - currentBestLocation.getTime();
-        boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
-        boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
-        boolean isNewer = timeDelta > 0;
-
-        if(isSignificantlyNewer)
-            return true;
-        else if(isSignificantlyOlder)
-            return false;
-
-        //Sprawdzam czy lokalizacja jest dokładniejsza
-        int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
-        boolean isLessAccurate = accuracyDelta > 0;
-        boolean isMoreAccurate = accuracyDelta < 0;
-        boolean isSignificantlyLessAcurate = accuracyDelta > 200;
-
-        if(isMoreAccurate)
-            return true;
-        else if (isNewer && !isLessAccurate)
-            return true;
-        return false;
-    }
-
-    private void twentySecondsFunction() {
+    private void sendLocationPeriod() {
+        stopTime = System.currentTimeMillis();
+        trainingTime += stopTime - startTime;
+        startTime = stopTime;
+        if(length != 0) {
+            pace = ((int) trainingTime / 1000) / length;
+        }
         if(lastLocation != null && currentUser != null) {
             Log.e("GPS", "SendLocation");
             new CurrentLocationSender(this, currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation, burnedCalories,

@@ -154,7 +154,8 @@ public class JSONRequestBuilder {
      * @param t training
      * @return json req
      */
-    public static JSONObject buildSendTrainingRequestAsJson(Training t/*, List<TrainingImage> images*/) {
+
+    public static JSONObject buildSendTrainingRequestAsJson(Training t) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put(Constants.type, Constants.SendTraining)

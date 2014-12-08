@@ -41,16 +41,6 @@ import com.mp.runand.app.logic.training.ServiceCheckTask;
 import com.mp.runand.app.logic.training.TrainingConstants;
 import com.mp.runand.app.logic.training.TrainingImage;
 
-import org.apache.http.util.ByteArrayBuffer;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Date;
 import java.util.ArrayList;
 
@@ -106,14 +96,14 @@ public class TrainingActivity extends Activity {
         }
     }
 
-    @InjectView(R.id.debugMap)
+    /*@InjectView(R.id.debugMap)
     Button debugMap;
 
     @OnClick(R.id.debugMap)
     void debugMapOnClick(Button button) {
         Intent intent = new Intent(this, MapDebug.class);
         startActivity(intent);
-    }
+    }*/
 
     private boolean endOfTraining = false;
     private boolean trainingStarted = false;
@@ -125,7 +115,6 @@ public class TrainingActivity extends Activity {
     private int trackLength;
     private long trainingTime;
     private int burnedCalories;
-    private long pace;
 
     private Training training;
 
@@ -213,17 +202,19 @@ public class TrainingActivity extends Activity {
             area.setLatitude(12.0);
             area.setLongitude(45.0);
             long trainingID;
-            if(!isRouteTraining) {
-                Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
-                training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
-                trainingID = dataBaseHelper.addTraining(training, images);
-            } else {
-                Track track = dataBaseHelper.getTrack(getIntent().getIntExtra("trackID", -1));
-                training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
-                trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1), images);
+            if(isUserLoggedIn) {
+                if (!isRouteTraining) {
+                    Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
+                    training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
+                    trainingID = dataBaseHelper.addTraining(training, images);
+                } else {
+                    Track track = dataBaseHelper.getTrack(getIntent().getIntExtra("trackID", -1));
+                    training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
+                    trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1), images);
+                }
+                training.setLengthTime((int) trainingID);
+                Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
             }
-            training.setLengthTime((int) trainingID);
-            Toast.makeText(getBaseContext(), "Zapexecuteisano Trening", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -303,10 +294,11 @@ public class TrainingActivity extends Activity {
             positionsOK = true;
             saveTrainingToDatabase();
             //Starting activity to summup training
-            new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(training));
-            new TrackSender(this, currentUser).execute(training.getTrack());
-            JSONObject tmp = JSONRequestBuilder.buildSendTrainingRequestAsJson(training);
-            new TrainingSender(this, currentUser, images).execute(training);
+            if(currentUser != null) {
+                new LiveTrainingManager(this, currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(training));
+                new TrackSender(this, currentUser).execute(training.getTrack());
+                new TrainingSender(this, currentUser).execute(training);
+            }
         }
     }
 
@@ -334,9 +326,11 @@ public class TrainingActivity extends Activity {
             if (lastLocation == null && !trainingStarted) {
                 Log.e("TA", "New Training");
                 lastLocation = location;
-                new LiveTrainingManager(TrainingActivity.this, currentUser)
-                        .execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(lastLocation.getLatitude(), lastLocation.getLongitude(), 0));
-                return;
+                if(currentUser != null) {
+                    new LiveTrainingManager(TrainingActivity.this, currentUser)
+                            .execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(lastLocation.getLatitude(), lastLocation.getLongitude(), 0));
+                }
+                    return;
             }
             lastLocation = location;
         }

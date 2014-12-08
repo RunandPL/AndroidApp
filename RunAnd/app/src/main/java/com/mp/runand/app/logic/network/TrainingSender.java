@@ -44,11 +44,10 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
     String error = "";
     boolean success = false;
 
-    public TrainingSender(Context ctx, CurrentUser cu, List<TrainingImage> images){
+    public TrainingSender(Context ctx, CurrentUser cu){
         context=ctx;
         currentUser = cu;
         progressDialog = new ProgressDialog(ctx);
-        this.images = images;
     }
 
     /**
