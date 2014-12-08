@@ -24,7 +24,7 @@ public class TrackListAdapter extends ArrayAdapter<Track> {
     public TrackListAdapter(Context context, ArrayList<Track> values) {
         super(context, R.layout.activity_list_trainings, values.toArray(new Track[values.size()]));
         if(values.isEmpty()) {
-            Toast.makeText(context, "Puste zapytanie", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Puste zapytanie", Toast.LENGTH_SHORT).show();
         }
         this.context = context;
         this.values = values;

@@ -44,15 +44,15 @@
             android:background="@drawable/layer_button_history"
             style="@style/ButtonText"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/showTrainingHistory"
-            android:id="@+id/tmp"
-            android:layout_marginTop="60dip"
-            android:layout_marginBottom="60dip"
-            android:background="@drawable/layer_button_history"
-            style="@style/ButtonText"/>
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="@string/showTrainingHistory"-->
+            <!--android:id="@+id/tmp"-->
+            <!--android:layout_marginTop="60dip"-->
+            <!--android:layout_marginBottom="60dip"-->
+            <!--android:background="@drawable/layer_button_history"-->
+            <!--style="@style/ButtonText"/>-->
 
     </LinearLayout>
 

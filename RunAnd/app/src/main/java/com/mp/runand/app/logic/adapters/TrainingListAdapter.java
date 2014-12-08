@@ -23,7 +23,7 @@ public class TrainingListAdapter extends ArrayAdapter<Training> {
     public TrainingListAdapter(Context context, ArrayList<Training> values) {
         super(context, R.layout.activity_list_trainings, values.toArray(new Training[values.size()]));
         if(values.isEmpty()) {
-            Toast.makeText(context, "Puste zapytanie", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Puste zapytanie", Toast.LENGTH_SHORT).show();
         }
         this.context = context;
         this.values = values;

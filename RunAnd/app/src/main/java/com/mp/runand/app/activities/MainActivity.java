@@ -40,31 +40,31 @@ public class MainActivity extends Activity {
     Button trainingButton;
     @InjectView(R.id.showHistoryButton)
     Button historyButton;
-    @InjectView(R.id.tmp)
-    Button tmp;
-
-    @OnClick(R.id.tmp)
-    void tmp(){
-        Location area = new Location("none");
-        area.setLatitude(12.0);
-        area.setLongitude(12.0);
-        area.setAltitude(0.0);
-        Location area2 = new Location("none");
-        area2.setLatitude(127.0);
-        area2.setLongitude(172.0);
-        area2.setAltitude(0.0);
-
-        ArrayList<Location> ll = new ArrayList<Location>();
-        ll.add(area);
-        ll.add(area2);
-        Track t = new Track(new Date(System.currentTimeMillis()),ll,11,11,11,area);
-        Training tt = new Training("mail",345,t,23,23);
-
-        //new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(10,10,10));
-        //new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area));
-        //new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area2));
-        //new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(tt));
-    }
+//    @InjectView(R.id.tmp)
+//    Button tmp;
+//
+//    @OnClick(R.id.tmp)
+//    void tmp(){
+//        Location area = new Location("none");
+//        area.setLatitude(12.0);
+//        area.setLongitude(12.0);
+//        area.setAltitude(0.0);
+//        Location area2 = new Location("none");
+//        area2.setLatitude(127.0);
+//        area2.setLongitude(172.0);
+//        area2.setAltitude(0.0);
+//
+//        ArrayList<Location> ll = new ArrayList<Location>();
+//        ll.add(area);
+//        ll.add(area2);
+//        Track t = new Track(new Date(System.currentTimeMillis()),ll,11,11,11,area);
+//        Training tt = new Training("mail",345,t,23,23);
+//
+//        //new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStartLiveTrainingRequestAsJson(10,10,10));
+//        //new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area));
+//        //new CurrentLocationSender(this,currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(area2));
+//        //new LiveTrainingManager(this,currentUser).execute(JSONRequestBuilder.buildStopLiveTrainingRequestAsJson(tt));
+//    }
 
     @OnClick(R.id.showHistoryButton)
     void onClickHistory(Button button) {

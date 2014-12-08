@@ -45,12 +45,14 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Button"
+        android:text="Pokaż mapę"
         android:id="@+id/debugMap"
         android:layout_centerVertical="true"
         android:layout_alignRight="@+id/linearLayout"
         android:layout_alignEnd="@+id/linearLayout"
-        android:layout_marginRight="270dp" />
+        android:layout_marginRight="270dp"
+        android:background="@drawable/layer_button_road"
+        style="@style/ButtonText"/>
 
 
 </RelativeLayout>

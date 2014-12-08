@@ -133,11 +133,11 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
         } else if (isError) {
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
         } else {
-            try {
-                Toast.makeText(context, jsonObject.getString("msg"), Toast.LENGTH_SHORT).show();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                //Toast.makeText(context, jsonObject.getString("msg"), Toast.LENGTH_SHORT).show();
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
