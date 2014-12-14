@@ -76,6 +76,7 @@ public class GpsService extends Service implements GpsStatus.Listener {
         locations = new ArrayList<Location>();
         length = 0;
         burnedCalories = 0;
+        trainingTime = 0;
         lastLocation = null;
         databaseHelper = DataBaseHelper.getInstance(this);
         currentUser = databaseHelper.getCurrentUser();
@@ -206,7 +207,7 @@ public class GpsService extends Service implements GpsStatus.Listener {
     private void sendLocationPeriod() {
         //stopTime = System.currentTimeMillis();
         //trainingTime += (stopTime - startTime);
-        startTime = stopTime;
+        //startTime = stopTime;
         if(length != 0) {
             pace = 0;
             pace = ((int) trainingTime / 1000) / length;

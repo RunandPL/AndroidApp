@@ -47,9 +47,7 @@ public class TrainingSummation extends Activity {
     @OnClick(R.id.trackImage)
     void trackImageOnClick(ImageView imageView) {
         Intent intent = new Intent(this, MapLook.class);
-        ArrayList<TrainingImage> images = databaseHelper.getImagesForTraining(training.getId());
         intent.putExtra("TRAINING_ID", training.getId());
-        //intent.putExtra(TrainingConstants.IMAGES, images);
         intent.putExtra("POSITIONS", training.getTrack().getRoute());
         startActivity(intent);
     }

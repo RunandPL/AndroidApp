@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.mp.runand.app.R;
 import com.mp.runand.app.logic.NameBuilder;
 import com.mp.runand.app.logic.database.DatabaseUtils;
@@ -116,6 +117,7 @@ public class TrainingActivity extends Activity {
     private int trackLength;
     private long trainingTime;
     private int burnedCalories;
+    private Location area;
 
     private Training training;
 
@@ -199,9 +201,6 @@ public class TrainingActivity extends Activity {
     private void saveTrainingToDatabase() {
         if(positionsOK) {
             DataBaseHelper dataBaseHelper = DataBaseHelper.getInstance(getBaseContext());
-            Location area = new Location("none");
-            area.setLatitude(12.0);
-            area.setLongitude(45.0);
             long trainingID;
             if(isUserLoggedIn) {
                 if (!isRouteTraining) {
@@ -297,6 +296,7 @@ public class TrainingActivity extends Activity {
         burnedCalories = intent.getIntExtra(TrainingConstants.BURNED_CALORIES, 0);
         trackLength = intent.getIntExtra(TrainingConstants.TRAININ_LENGTH, 0);
         trainingTime = intent.getLongExtra(TrainingConstants.TRAINING_TIME, 0);
+        calculateArea();
         if(locations != null && locations.size() > 0) {
             positionsOK = true;
             saveTrainingToDatabase();
@@ -307,6 +307,22 @@ public class TrainingActivity extends Activity {
                 new TrainingSender(this, currentUser).execute(training);
             }
         }
+    }
+
+    private void calculateArea() {
+        double lat, lng, sum = 0;
+        for(int i = 0; i < locations.size(); i++) {
+            sum += locations.get(i).getLatitude();
+        }
+        lat = sum / locations.size();
+        sum = 0;
+        for(int i = 0; i < locations.size(); i++) {
+            sum += locations.get(i).getLongitude();
+        }
+        lng = sum / locations.size();
+        area = new Location("none");
+        area.setLatitude(lat);
+        area.setLongitude(lng);
     }
 
     private void resolveEventType(int eventType) {

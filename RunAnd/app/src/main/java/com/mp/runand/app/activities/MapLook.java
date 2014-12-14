@@ -69,6 +69,7 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
     private Marker stopMarker = null;
     private ArrayList<TrainingImage> images = null;
     private ArrayList<Marker> imagesMarkers;
+    private LatLng area;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,11 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
             markerOptions.title("Stop");
             markerOptions.position(stop);
             stopMarker = map.addMarker(markerOptions);
+
+            //Put area location on map
+            markerOptions = new MarkerOptions();
+            markerOptions.position(area);
+            map.addMarker(markerOptions);
 
             //Put images markers on map
             for(int i = 0; i < images.size(); i++) {
