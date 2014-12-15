@@ -2,6 +2,8 @@ package com.mp.runand.app.logic.network;
 
 import android.location.Location;
 
+import com.mp.runand.app.logic.database.DataBaseHelper;
+import com.mp.runand.app.logic.entities.CurrentUser;
 import com.mp.runand.app.logic.entities.Track;
 import com.mp.runand.app.logic.entities.Training;
 import com.mp.runand.app.logic.training.TrainingImage;
@@ -10,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -134,12 +137,15 @@ public class JSONRequestBuilder {
      * @param t track object
      * @return json req
      */
-    public static JSONObject buildSendTrackRequestAsJson(Track t) {
+    public static JSONObject buildSendTrackRequestAsJson(Track t, CurrentUser user) {
         JSONObject jsonObject = new JSONObject();
         try {
+            long date = System.currentTimeMillis();
+            Date data = new Date(date);
             jsonObject.put(Constants.type, Constants.SendTrack)
                     .put(Constants.track, t.getSendableRoute())
-                    .put(Constants.description, "todo get description in track")
+                    .put(Constants.description, data.toString())
+                    .put(Constants.title, user.getUserName().split("@")[0])
                     .put(Constants.isPublic, true)
                     .put(Constants.length, t.getLength());
         } catch (JSONException e) {
@@ -155,14 +161,14 @@ public class JSONRequestBuilder {
      * @return json req
      */
 
-    public static JSONObject buildSendTrainingRequestAsJson(Training t) {
+    public static JSONObject buildSendTrainingRequestAsJson(Training t, CurrentUser user) {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put(Constants.type, Constants.SendTraining)
                     .put(Constants.lengthTime, t.getLengthTime())
                     .put(Constants.burnedCalories, t.getBurnedCalories())
                     .put(Constants.speedRate, t.getSpeedRate())
-                    .put(Constants.track, buildSendTrackRequestAsJson(t.getTrack()));
+                    .put(Constants.track, buildSendTrackRequestAsJson(t.getTrack(), user));
                     //.put(Constants.images, buildImagesAsJsonArray(images));
         } catch (JSONException e) {
             e.printStackTrace();

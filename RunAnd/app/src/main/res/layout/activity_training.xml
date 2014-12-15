@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="@string/startTraining"
             android:id="@+id/startTrainingButton"
-            android:background="@drawable/layer_button_start"
+            android:background="@drawable/layout_training_button"
             style="@style/ButtonText"/>
 
         <Button
@@ -50,6 +50,6 @@
         android:layout_alignRight="@+id/linearLayout"
         android:layout_alignEnd="@+id/linearLayout"
         android:layout_marginRight="270dp"
-        android:background="@drawable/layer_button_road"
+        android:background="@drawable/button_fb"
         style="@style/ButtonText"/>
 </RelativeLayout>

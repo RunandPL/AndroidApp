@@ -17,7 +17,7 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/normalTrainingButton"
         android:text="@string/normalTraining"
-        android:background="@drawable/layer_button_road"
+        android:background="@drawable/layout_training_button"
         style="@style/ButtonText"/>
 
     <Button

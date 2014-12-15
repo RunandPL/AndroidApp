@@ -176,7 +176,8 @@ public class GpsService extends Service implements GpsStatus.Listener {
     }
 
     private void sendTrainingData() {
-        trainingTime = stopTime - startTime;
+        trainingTime += (stopTime - startTime);
+        Log.e("CZASTRENINGU", String.valueOf(trainingTime));
         Intent intent = new Intent();
         intent.setAction(ACTION);
         intent.putParcelableArrayListExtra(TrainingConstants.POSITIONS, locations);
@@ -205,17 +206,20 @@ public class GpsService extends Service implements GpsStatus.Listener {
     }
 
     private void sendLocationPeriod() {
-        //stopTime = System.currentTimeMillis();
-        //trainingTime += (stopTime - startTime);
-        //startTime = stopTime;
-        if(length != 0) {
-            pace = 0;
-            pace = ((int) trainingTime / 1000) / length;
-        }
-        if(lastLocation != null && currentUser != null) {
-            Log.e("GPS", "SendLocation");
-            new CurrentLocationSender(this, currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation, burnedCalories,
-                    0, 0, length));
+        if(trainingStarted) {
+            stopTime = System.currentTimeMillis();
+            Log.e("GPSSERVICE", String.valueOf(trainingTime));
+            trainingTime += (stopTime - startTime);
+            startTime = stopTime;
+            if (length != 0) {
+                pace = 0;
+                pace = ((int) trainingTime / 1000) / length;
+            }
+            if (lastLocation != null && currentUser != null) {
+                Log.e("GPS", "SendLocation");
+                new CurrentLocationSender(this, currentUser).execute(JSONRequestBuilder.buildSendCurrentLocationRequestAsJson(lastLocation, burnedCalories,
+                        0, 0, length));
+            }
         }
     }
 

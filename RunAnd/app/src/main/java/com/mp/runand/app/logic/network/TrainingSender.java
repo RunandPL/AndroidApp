@@ -75,7 +75,7 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
             //android.os.Debug.waitForDebugger();
 
             //creating Json
-            JSONObject requestJson = JSONRequestBuilder.buildSendTrainingRequestAsJson(training[0]);
+            JSONObject requestJson = JSONRequestBuilder.buildSendTrainingRequestAsJson(training[0], currentUser);
 
             //setting timeouts for connection
             HttpParams httpParameters = new BasicHttpParams();
@@ -93,7 +93,7 @@ public class TrainingSender extends AsyncTask<Training,Void,JSONObject> {
             //execute and obtaining response
             HttpResponse serverResponse = httpClient.execute(request);
             Log.e("TS", String.valueOf(serverResponse.getStatusLine().getStatusCode()));
-            if(serverResponse.getStatusLine().getStatusCode()==200){
+            if(serverResponse.getStatusLine().getStatusCode()==200) {
                 success=true;
             }
             HttpEntity entity = serverResponse.getEntity();

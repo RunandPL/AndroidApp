@@ -77,7 +77,7 @@ public class TrackSender extends AsyncTask<Track,Void,JSONObject> {
             //android.os.Debug.waitForDebugger();
 
             //creating Json
-            JSONObject requestJson = JSONRequestBuilder.buildSendTrackRequestAsJson(track[0]);
+            JSONObject requestJson = JSONRequestBuilder.buildSendTrackRequestAsJson(track[0], currentUser);
 
             //setting timeouts for connection
             HttpParams httpParameters = new BasicHttpParams();

@@ -49,6 +49,7 @@ public class TrainingSummation extends Activity {
         Intent intent = new Intent(this, MapLook.class);
         intent.putExtra("TRAINING_ID", training.getId());
         intent.putExtra("POSITIONS", training.getTrack().getRoute());
+        intent.putExtra("AREA", training.getTrack().getArea());
         startActivity(intent);
     }
 

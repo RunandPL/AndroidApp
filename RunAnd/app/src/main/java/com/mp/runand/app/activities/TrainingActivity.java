@@ -182,9 +182,9 @@ public class TrainingActivity extends Activity {
         intent.putExtra("SET_TRAINING", "START");
         sendBroadcast(intent);
         trainingStarted = true;
-        startButton.setVisibility(View.GONE);
-        stopButton.setVisibility(View.VISIBLE);
-        takePictureButton.setVisibility(View.VISIBLE);
+        startButton.setEnabled(false);
+        stopButton.setEnabled(true);
+        takePictureButton.setEnabled(true);
     }
 
     private void stopTraining() {
@@ -193,9 +193,9 @@ public class TrainingActivity extends Activity {
         intent.putExtra("SET_TRAINING", "STOP");
         sendBroadcast(intent);
         trainingStarted = false;
-        startButton.setVisibility(View.VISIBLE);
-        stopButton.setVisibility(View.GONE);
-        takePictureButton.setVisibility(View.GONE);
+        startButton.setEnabled(true);
+        stopButton.setEnabled(false);
+        takePictureButton.setEnabled(false);
     }
 
     private void saveTrainingToDatabase() {
@@ -204,15 +204,16 @@ public class TrainingActivity extends Activity {
             long trainingID;
             if(isUserLoggedIn) {
                 if (!isRouteTraining) {
+                    Log.e("Czas treningu", String.valueOf(trainingTime));
                     Track track = new Track(new Date(System.currentTimeMillis()), locations, trackLength, 1, 1, area);
                     training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
-                    trainingID = dataBaseHelper.addTraining(training, images);
+                    //trainingID = dataBaseHelper.addTraining(training, images);
                 } else {
+                    Log.e("Czas treningu", String.valueOf(trainingTime));
                     Track track = dataBaseHelper.getTrack(getIntent().getIntExtra("trackID", -1));
                     training = new Training(currentUser.getEmailAddress(), trainingTime, track, burnedCalories, 0.0);
-                    trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1), images);
+                    //trainingID = dataBaseHelper.addTrainingOnExistingTrack(training, getIntent().getIntExtra("trackID", -1), images);
                 }
-                training.setLengthTime((int) trainingID);
                 Toast.makeText(getBaseContext(), "Zapisano Trening", Toast.LENGTH_SHORT).show();
             }
         }
@@ -279,14 +280,17 @@ public class TrainingActivity extends Activity {
 
     public void setButtonsEnabled(boolean enabled) {
         if(!trainingStarted) {
-            startButton.setVisibility(View.GONE);
+            startButton.setEnabled(enabled);
+            stopButton.setEnabled(false);
+            takePictureButton.setEnabled(false);
+            /*
             if(enabled) {
                 startButton.setVisibility(View.VISIBLE);
                 takePictureButton.setVisibility(View.VISIBLE);
             } else {
                 startButton.setVisibility(View.GONE);
                 takePictureButton.setVisibility(View.GONE);
-            }
+            }*/
 
         }
     }
@@ -296,6 +300,7 @@ public class TrainingActivity extends Activity {
         burnedCalories = intent.getIntExtra(TrainingConstants.BURNED_CALORIES, 0);
         trackLength = intent.getIntExtra(TrainingConstants.TRAININ_LENGTH, 0);
         trainingTime = intent.getLongExtra(TrainingConstants.TRAINING_TIME, 0);
+        Log.e("CzasTrainingActivity", String.valueOf(trainingTime));
         calculateArea();
         if(locations != null && locations.size() > 0) {
             positionsOK = true;
@@ -364,13 +369,13 @@ public class TrainingActivity extends Activity {
         Log.e("RES", String.valueOf(status));
         trainingStarted = status;
         if(status) {
-            startButton.setVisibility(View.GONE);
-            stopButton.setVisibility(View.VISIBLE);
-            takePictureButton.setVisibility(View.VISIBLE);
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+            takePictureButton.setEnabled(true);
         } else {
-            startButton.setVisibility(View.VISIBLE);
-            stopButton.setVisibility(View.GONE);
-            takePictureButton.setVisibility(View.GONE);
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            takePictureButton.setEnabled(false);
         }
     }
 
@@ -390,8 +395,9 @@ public class TrainingActivity extends Activity {
                 setLastLocation((Location) intent.getParcelableExtra("LAST_LOCATION"));
             } else if(intent.hasExtra("TRAINING_STATUS")) {
                 resolveTrainingStatus(intent.getBooleanExtra("TRAINING_STATUS", false));
+            } else {
+                getTrainingData(intent);
             }
-            getTrainingData(intent);
         }
     }
 }

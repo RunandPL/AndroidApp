@@ -69,7 +69,7 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
     private Marker stopMarker = null;
     private ArrayList<TrainingImage> images = null;
     private ArrayList<Marker> imagesMarkers;
-    private LatLng area;
+    private Location area;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +82,7 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
         int trainingID = intent.getIntExtra("TRAINING_ID", -1);
         images = DataBaseHelper.getInstance(this).getImagesForTraining(trainingID);
         imagesMarkers = new ArrayList<Marker>();
+        area = intent.getParcelableExtra("AREA");
         putTrackOnMap();
     }
 
@@ -124,7 +125,7 @@ public class MapLook extends Activity implements GoogleMap.OnMarkerClickListener
 
             //Put area location on map
             markerOptions = new MarkerOptions();
-            markerOptions.position(area);
+            markerOptions.position(new LatLng(area.getLatitude(), area.getLongitude()));
             map.addMarker(markerOptions);
 
             //Put images markers on map

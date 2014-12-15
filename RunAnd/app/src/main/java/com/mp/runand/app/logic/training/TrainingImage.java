@@ -14,9 +14,7 @@ public class TrainingImage implements Parcelable {
     private Bitmap imageInBMP;
     private String base64;
 
-    public TrainingImage() {
-
-    }
+    public TrainingImage() {}
 
     public TrainingImage(Location location, String image, Bitmap imageInBMP, String base64) {
         this.location = location;
@@ -28,7 +26,7 @@ public class TrainingImage implements Parcelable {
     public TrainingImage(Parcel parcel) {
         this.image = parcel.readString();
         this.location = parcel.readParcelable(Location.class.getClassLoader());
-        this.imageInBMP = parcel.readParcelable(Bitmap.class.getClassLoader());
+        this.base64 = parcel.readString();
     }
 
     public String getBase64() {
@@ -72,7 +70,7 @@ public class TrainingImage implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(image);
         parcel.writeParcelable(location, 0);
-        parcel.writeParcelable(imageInBMP, 0);
+        parcel.writeString(base64);
     }
 
     public static final Creator<TrainingImage> CREATOR = new Creator<TrainingImage>() {

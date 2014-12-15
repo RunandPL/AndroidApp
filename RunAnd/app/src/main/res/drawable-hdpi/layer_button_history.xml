@@ -6,5 +6,5 @@
         android:left="5dip">
         <bitmap android:src="@drawable/history"
             android:gravity="left"/>
-        </item>
+    </item>
 </layer-list>
